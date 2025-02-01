@@ -8,15 +8,21 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import com.example.eynplugin.Utils;
 import java.util.*;
+import com.example.eynplugin.EYNPlugin;
+import java.util.concurrent.TimeUnit;
+import org.bukkit.Sound;
+import java.util.stream.Collectors;
 
 public class TpaCommand extends BaseCommand {
+    private final EYNPlugin plugin;
     private final Map<UUID, UUID> pendingRequests = new HashMap<>();
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private static final int COOLDOWN_SECONDS = 30;
     private static final int REQUEST_EXPIRE_SECONDS = 60;
 
-    public TpaCommand(LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig) {
+    public TpaCommand(EYNPlugin plugin, LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig) {
         super(luckPermsHandler, messagesConfig);
+        this.plugin = plugin;
     }
 
     @Override
@@ -54,8 +60,8 @@ public class TpaCommand extends BaseCommand {
         }
 
         if (cooldowns.containsKey(player.getUniqueId())) {
-            long secondsLeft = ((cooldowns.get(player.getUniqueId()) / 1000) + COOLDOWN_SECONDS) 
-                - (System.currentTimeMillis() / 1000);
+            long cooldownEnd = cooldowns.get(player.getUniqueId()) + TimeUnit.SECONDS.toMillis(COOLDOWN_SECONDS);
+            long secondsLeft = TimeUnit.MILLISECONDS.toSeconds(cooldownEnd - System.currentTimeMillis());
             if (secondsLeft > 0) {
                 sendMessage(player, "messages.tpa.cooldown", "%seconds%", String.valueOf(secondsLeft));
                 return true;
@@ -68,12 +74,20 @@ public class TpaCommand extends BaseCommand {
         sendMessage(player, "messages.tpa.sent", "%player%", target.getName());
         sendMessage(target, "messages.tpa.received", "%player%", player.getName());
         
-        Bukkit.getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("EYNPlugin"), 
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+        target.playSound(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+        
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, 
             () -> expireRequest(target.getUniqueId()), REQUEST_EXPIRE_SECONDS * 20);
         
         return true;
     }
 
+    /**
+     * Handles teleport request acceptance
+     * @param player Player accepting the request
+     * @return true if handled successfully
+     */
     private boolean handleAccept(Player player) {
         if (!checkPermission(player, "eyn.tpaccept")) return true;
 
@@ -89,7 +103,14 @@ public class TpaCommand extends BaseCommand {
             return true;
         }
 
-        requester.teleport(player.getLocation());
+        if (!requester.isOnline() || !player.isOnline()) {
+            sendMessage(player, "messages.tpa.requester_offline");
+            return true;
+        }
+        if (!requester.teleport(player.getLocation())) {
+            sendMessage(player, "messages.error.generic");
+            plugin.getLogger().warning("Teleport failed for " + requester.getName());
+        }
         sendMessage(player, "messages.tpa.accepted", "%player%", requester.getName());
         sendMessage(requester, "messages.tpa.accepted_sender", "%player%", player.getName());
         return true;
@@ -117,7 +138,7 @@ public class TpaCommand extends BaseCommand {
         if (requesterId != null) {
             Player requester = Bukkit.getPlayer(requesterId);
             Player target = Bukkit.getPlayer(targetId);
-            if (requester != null) {
+            if (target != null && target.isOnline()) {
                 sendMessage(requester, "messages.tpa.expired", "%player%", (target != null ? target.getName() : "Unknown"));
             }
         }
@@ -132,10 +153,12 @@ public class TpaCommand extends BaseCommand {
         if (args.length == 1) {
             List<String> options = new ArrayList<>();
             if (checkPermission(sender, "eyn.tpaccept")) {
-                options.add("accept");
-                options.add("deny");
+                Collections.addAll(options, "accept", "deny");
             }
-            options.addAll(getOnlinePlayerNames());
+            options.addAll(Bukkit.getOnlinePlayers().stream()
+                .map(Player::getName)
+                .filter(name -> !name.equalsIgnoreCase(sender.getName()))
+                .collect(Collectors.toList()));
             return options;
         }
         return Collections.emptyList();
