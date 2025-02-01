@@ -160,6 +160,11 @@ commands:
     usage: /<command> [player]
     permission: eyn.enderchest
     aliases: [ec, echest]
+  eynreload:
+    description: Reload plugin configuration
+    usage: /<command>
+    permission: eyn.reload
+    aliases: [pluginreload, preload]
 
 permissions:
   eyn.home:

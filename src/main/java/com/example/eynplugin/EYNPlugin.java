@@ -21,6 +21,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import com.example.eynplugin.storage.HomeManager;
 import com.example.eynplugin.listeners.FreezeListener;
+import com.example.eynplugin.commands.ReloadCommand;
 
 /**
  * Main plugin class for EYN Plugin.
@@ -241,6 +242,8 @@ public class EYNPlugin extends JavaPlugin {
         for (String cmd : Arrays.asList("gmc", "gms", "gmsp", "gma")) {
             registerCommand(cmd, gamemodeCommand);
         }
+
+        registerCommand("eynreload", new ReloadCommand(this, luckPermsHandler, messagesConfig));
     }
 
     private void registerCommand(String name, CommandExecutor executor) {
@@ -275,5 +278,13 @@ public class EYNPlugin extends JavaPlugin {
 
     public FileConfiguration getMessagesConfig() {
         return messagesConfig;
+    }
+
+    public void reloadConfigs() {
+        reloadConfig();
+        saveDefaultConfig();
+        messagesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), MESSAGES_FILE));
+        validateMessagesConfig();
+        getLogger().info("Configuration reloaded successfully");
     }
 }

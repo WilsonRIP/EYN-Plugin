@@ -222,4 +222,9 @@ messages:
     console_usage: "&cConsole usage: /enderchest <player>"
     opened_other: "&aOpened ender chest of &e%player%"
     opened_by: "&cYour ender chest was opened by &e%player%"
-    console_success: "&aAccessed ender chest of &e%player% (console view not supported)" 
+    console_success: "&aAccessed ender chest of &e%player% (console view not supported)"
+  reload:
+    success: "&aPlugin configuration reloaded successfully!"
+    success_console: "&aPlugin configuration reloaded from console"
+    failed: "&cFailed to reload config! Check console for errors"
+    failed_console: "&cConfig reload failed! Check logs for details" 
