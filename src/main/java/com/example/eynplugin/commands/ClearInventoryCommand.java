@@ -7,10 +7,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.ChatColor;
 import java.util.List;
 import java.util.Collections;
 import com.example.eynplugin.Utils;
+import java.util.Arrays;
 
 public class ClearInventoryCommand extends BaseCommand {
 
@@ -45,6 +45,13 @@ public class ClearInventoryCommand extends BaseCommand {
                 sender.sendMessage(Utils.colorize(getMessage("messages.moderation.player_not_found")));
                 return true;
             }
+        }
+
+        // Check if inventory is already empty
+        if (target.getInventory().isEmpty() && 
+            Arrays.stream(target.getInventory().getArmorContents()).allMatch(item -> item == null)) {
+            sender.sendMessage(Utils.colorize(getMessage("messages.clearinventory.no_items")));
+            return true;
         }
 
         // Clear inventory and armor
