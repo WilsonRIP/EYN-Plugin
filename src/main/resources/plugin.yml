@@ -155,6 +155,11 @@ commands:
     usage: /<command> [player]
     permission: eyn.clearinventory
     aliases: [ci, clearinv]
+  enderchest:
+    description: Open a player's ender chest
+    usage: /<command> [player]
+    permission: eyn.enderchest
+    aliases: [ec, echest]
 
 permissions:
   eyn.home:

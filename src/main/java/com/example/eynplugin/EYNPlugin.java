@@ -234,6 +234,7 @@ public class EYNPlugin extends JavaPlugin {
         registerCommand("anvil", new AnvilCommand(luckPermsHandler, messagesConfig));
         registerCommand("home", new HomeCommand(homeManager, getConfig(), messagesConfig));
         registerCommand("clearinventory", new ClearInventoryCommand(luckPermsHandler, messagesConfig));
+        registerCommand("enderchest", new EnderChestCommand(luckPermsHandler, messagesConfig));
         
         // Add gamemode commands
         GamemodeCommand gamemodeCommand = new GamemodeCommand(luckPermsHandler, messagesConfig);
