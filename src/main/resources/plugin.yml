@@ -165,6 +165,19 @@ commands:
     usage: /<command>
     permission: eyn.reload
     aliases: [pluginreload, preload]
+  tpa:
+    description: Send teleport request to a player
+    usage: /<command> <player>
+    permission: eyn.tpa
+    aliases: [teleportrequest]
+  tpaccept:
+    description: Accept a teleport request
+    usage: /<command>
+    permission: eyn.tpaccept
+  tpdeny:
+    description: Deny a teleport request
+    usage: /<command>
+    permission: eyn.tpaccept
 
 permissions:
   eyn.home:

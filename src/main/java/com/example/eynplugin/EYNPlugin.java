@@ -244,6 +244,9 @@ public class EYNPlugin extends JavaPlugin {
         }
 
         registerCommand("eynreload", new ReloadCommand(this, luckPermsHandler, messagesConfig));
+        registerCommand("tpa", new TpaCommand(luckPermsHandler, messagesConfig));
+        registerCommand("tpaccept", new TpaCommand(luckPermsHandler, messagesConfig));
+        registerCommand("tpdeny", new TpaCommand(luckPermsHandler, messagesConfig));
     }
 
     private void registerCommand(String name, CommandExecutor executor) {
