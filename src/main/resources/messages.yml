@@ -1,0 +1,214 @@
+# Messages file for EYN Plugin
+
+messages:
+  welcome: "&a&lWelcome to the server!"
+  goodbye: "&c&lGoodbye! &rSee you next time!"
+  no_permission: "&c&lYou don't have permission to use this command!"
+  player_only_command: "&e&lThis command can only be used by players!"
+  error:
+    generic: "&c&lAn error occurred!"
+    player_not_found: "&c&lPlayer not found!"
+  fly:
+    enabled: "&b&lFlight mode enabled!"
+    disabled: "&c&lFlight mode disabled!"
+    toggle_other: "&a&lToggled flight mode for &r%player%"
+  back:
+    success: "&a&lTeleported to your previous location!"
+    no_location: "&c&lNo previous location found!"
+  god:
+    enabled: "&6&lGod mode enabled!"
+    disabled: "&c&lGod mode disabled!"
+    toggle_other: "&a&lToggled god mode for &r%player%"
+  gamemode:
+    creative: "&d&lGame mode changed to creative."
+    survival: "&a&lGame mode changed to survival."
+    spectator: "&7&lGame mode changed to spectator."
+    adventure: "&e&lGame mode changed to adventure."
+    invalid: "&c&lInvalid game mode!"
+    changed_other: "&a&lChanged %player%'s gamemode to %gamemode%"
+  weather:
+    rain: "&9&lWeather changed to rain."
+    thunder: "&e&lWeather changed to thunder."
+    clear: "&b&lWeather changed to clear."
+    sunny: "&6&lWeather changed to sunny."
+    invalid: "&c&lInvalid weather type!"
+  durability:
+    changed: "&a&lDurability changed to &r%durability%&a."
+    no_item: "&c&lYou are not holding an item!"
+    invalid: "&c&lInvalid durability value!"
+  warp:
+    usage: "&cUsage: /warp <name>"
+    set_usage: "&cUsage: /setwarp <name>"
+    del_usage: "&cUsage: /delwarp <name>"
+    rename_usage: "&cUsage: /renamewarp <oldname> <newname>"
+    teleported: "&a&lTeleported to warp &r%warp%&a!"
+    set: "&a&lWarp &r%warp%&a has been set!"
+    deleted: "&c&lWarp &r%warp%&c has been deleted!"
+    renamed: "&a&lWarp &r%old%&a has been renamed to &r%new%&a!"
+    list: "&e&lAvailable warps: &r%warps%"
+    not_found: "&c&lWarp &r%warp%&c does not exist!"
+    already_exists: "&c&lWarp &r%warp%&c already exists!"
+    invalid_name: "&c&lInvalid warp name!"
+    list_header: "&e&lAvailable Warps:"
+    no_warps: "&c&lNo warps have been set yet!"
+  discord:
+    message: "&9&lJoin our Discord! &r&nClick here to join!&r"
+    hover: "&7Click to join our Discord server!"
+  kill:
+    killed_player: "&c&lYou killed &r%target%&c!"
+    killed_by: "&c&lYou were killed by &r%player%&c!"
+    killed_all: "&c&lYou killed all players!"
+    no_target: "&c&lTarget player not found!"
+    self_kill: "&c&lYou killed yourself!"
+  vanish:
+    enabled: "&b&lVanish mode enabled! &7You are now invisible."
+    disabled: "&c&lVanish mode disabled! &7You are now visible."
+    enabled_other: "&b&lVanish mode enabled for &r%player%&b!"
+    disabled_other: "&c&lVanish mode disabled for &r%player%&c!"
+    already_vanished: "&c&lYou are already vanished!"
+    already_visible: "&c&lYou are already visible!"
+    list: "&e&lVanished players: &r%players%"
+    no_vanished: "&e&lThere are no vanished players."
+    no_target: "&c&lTarget player not found!"
+    enabled_actionbar: "&7&o[Vanish Mode: &a&oEnabled&7&o]"
+    disabled_actionbar: "&7&o[Vanish Mode: &c&oDisabled&7&o]"
+  playtime:
+    self: "&a&lYour playtime: &r%hours% hours, %minutes% minutes"
+    other: "&a&l%player%'s playtime: &r%hours% hours, %minutes% minutes"
+    no_data: "&c&lNo playtime data found for %player%"
+  playerinfo:
+    header: "&6&l=== Player Info: &r%player% &6&l==="
+    gamemode: "&e&lGamemode: &r%gamemode%"
+    health: "&c&lHealth: &r%health%/20"
+    food: "&d&lHunger: &r%food%/20"
+    location: "&b&lLocation: "
+    ip: "&7&lIP: "
+    uuid: "&7&lUUID: "
+    first_played: "&a&lFirst joined: &r%date%"
+    is_vanished: "&7&lVanished: &r%vanished%"
+    is_op: "&4&lOperator: &r%op%"
+    footer: "&6&l================================="
+    blur_enabled: "&7&lBlur mode enabled - sensitive information will be hidden"
+    blur_disabled: "&7&lBlur mode disabled - sensitive information will be shown"
+  online:
+    header: "&6&l=== Online Players (%count%) ==="
+    list: "&a%players%"
+    no_players: "&c&lNo players online!"
+    footer: "&6&l========================="
+  clearchat:
+    cleared: "&a&lChat has been cleared by &r%player%"
+    cooldown: "&c&lPlease wait %seconds% seconds before using this command again!"
+  moderation:
+    player_not_found: "&cPlayer not found!"
+    self_target: "&c&lYou cannot use moderation commands on yourself!"
+    target_is_op: "&c&lYou cannot moderate server operators!"
+    insufficient_rank: "&c&lYou cannot moderate players with higher or equal rank!"
+    
+    # Teleport command messages
+    tp:
+      invalid: "&cUsage: /tp <player>"
+      no_target: "&cCannot find the specified player."
+      self_teleport: "&cYou cannot teleport to yourself!"
+      success: "&aTeleported to %target%"
+    
+    tpall:
+      success: "&aTeleported all online players to you"
+    
+    tphere:
+      success: "&aTeleported %target% to your location"
+    freeze:
+      usage: "&cUsage: /freeze <player>"
+      broadcast: "&c%player% has frozen %target%"
+      target_message: "&c&lYou have been frozen! You cannot move."
+      already_frozen: "&cThis player is already frozen!"
+      unfreeze_broadcast: "&a%player% has unfrozen %target%"
+      unfreeze_target: "&a&lYou have been unfrozen! You can move again."
+      not_frozen: "&cThis player is not frozen!"
+    mute:
+      usage: "&cUsage: /mute <player> <reason>"
+      broadcast: "&c%player% has muted %target% for: %reason%"
+      target_message: "&cYou have been muted. Reason: %reason%"
+    unmute:
+      usage: "&cUsage: /unmute <player>"
+      broadcast: "&a%player% has unmuted %target%"
+      target_message: "&aYou have been unmuted"
+    ban:
+      usage: "&cUsage: /ban <player> <reason>"
+      already_banned: "&cThis player is already banned!"
+      broadcast: "&c%player% has banned %target% for: %reason%"
+      kick_message: "&cYou have been banned!\n&cReason: %reason%"
+    tempban:
+      usage: "&cUsage: /tempban <player> <duration> <reason>"
+      invalid_duration: "&cInvalid duration format! Use: 1d, 2h, 30m, etc."
+      broadcast: "&c%player% has temporarily banned %target% for %duration% for: %reason%"
+      kick_message: "&cYou have been temporarily banned until %expiry%!\n&cReason: %reason%"
+    unban:
+      usage: "&cUsage: /unban <player>"
+      not_banned: "&cThis player is not banned!"
+      broadcast: "&a%player% has unbanned %target%"
+    kick:
+      usage: "&cUsage: /kick <player> <reason>"
+      broadcast: "&c%player% has kicked %target% for: %reason%"
+      kick_message: "&cYou have been kicked!\n&cReason: %reason%"
+    ping:
+      console_error: "&cOnly players can check their own ping!"
+      player_not_found: "&cPlayer not found!"
+      self: "&7Your ping: &r%ping%"
+      other: "&7%player%'s ping: &r%ping%"
+    nick:
+      console_error: "&cOnly players can use nickname commands!"
+      usage: "&cUsage: /nick <nickname> [player]"
+      success: "&a&lNickname changed to &r%nickname%"
+      success_other: "&a&lChanged %player%'s nickname to &r%nickname%"
+      reset: "&a&lNickname reset to default"
+      reset_other: "&a&lReset %player%'s nickname"
+      too_long: "&c&lNickname is too long! Maximum length is 16 characters."
+      invalid_chars: "&c&lNickname contains invalid characters!"
+    burn:
+      usage: "&cUsage: /burn <player> [duration]"
+      invalid_duration: "&cInvalid duration. Please use a number of seconds."
+      target_message: "&cYou have been set on fire for %duration% seconds!"
+      sender_message: "&aSet %target% on fire for %duration% seconds!"
+  home:
+    usage: "&cUsage: /home <name> or /home <sethome|delhome|renamehome> [args]"
+    sethome:
+      usage: "&cUsage: /sethome <name>"
+      success: "&aHome %name% set successfully!"
+      limit: "&cYou've reached your home limit! (Max: %max%)"
+    delhome:
+      usage: "&cUsage: /delhome <name>"
+      success: "&aHome %name% deleted successfully!"
+    rename:
+      usage: "&cUsage: /renamehome <oldname> <newname>"
+      success: "&aHome renamed from %old% to %new%!"
+    teleport:
+      success: "&aTeleported to home %name%!"
+    not_found: "&cHome not found!"
+    exists: "&cA home with that name already exists!"
+  xp:
+    usage: "&cUsage: /xp <give|take|set> <amount> [player]"
+    invalid_amount: "&cInvalid amount! Please enter a positive number."
+    give:
+      self: "&aGave yourself %amount% XP"
+      other: "&aGave %amount% XP to %player%"
+      target: "&aYou received %amount% XP"
+    take:
+      self: "&cTook %amount% XP from yourself"
+      other: "&cTook %amount% XP from %player%"
+      target: "&c%amount% XP was taken from you"
+    set:
+      self: "&aSet your XP to %amount%"
+      other: "&aSet %player%'s XP to %amount%"
+      target: "&aYour XP was set to %amount%"
+  worldinfo:
+    header: "&6&lWorld Information: &r%world%"
+    time: "&eTime: &r%time%"
+    weather: "&eWeather: &r%weather%"
+    players: "&ePlayers: &r%count%"
+  anvil:
+    opened: "&a&lOpened virtual anvil!"
+    error: "&c&lFailed to open anvil!"
+  ping:
+    console_error: "&cOnly players can check their own ping!"
+    self: "&7Your ping: &r%ping%"
+    other: "&7%player%'s ping: &r%ping%" 

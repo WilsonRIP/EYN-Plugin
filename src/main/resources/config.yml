@@ -1,0 +1,10 @@
+# Configuration file for EYN Plugin
+
+settings:
+  example-setting: true
+
+# EYN Plugin Configuration
+
+# Discord invite link
+discord:
+  link: "https://discord.gg/example"  # Replace with your Discord invite link 
