@@ -211,4 +211,10 @@ messages:
   ping:
     console_error: "&cOnly players can check their own ping!"
     self: "&7Your ping: &r%ping%"
-    other: "&7%player%'s ping: &r%ping%" 
+    other: "&7%player%'s ping: &r%ping%"
+  clearinventory:
+    console_usage: "&cConsole usage: /clearinventory <player>"
+    self_cleared: "&aYour inventory has been cleared!"
+    other_cleared: "&aCleared inventory of &e%player%"
+    cleared_by_staff: "&cYour inventory was cleared by staff member &e%staff%"
+    no_items: "&cTarget inventory is already empty!" 

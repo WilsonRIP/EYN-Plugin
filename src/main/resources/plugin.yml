@@ -150,6 +150,11 @@ commands:
     description: Set a player on fire
     usage: /<command> <player> [duration]
     permission: eyn.burn
+  clearinventory:
+    description: Clear a player's inventory
+    usage: /<command> [player]
+    permission: eyn.clearinventory
+    aliases: [ci, clearinv]
 
 permissions:
   eyn.home:
