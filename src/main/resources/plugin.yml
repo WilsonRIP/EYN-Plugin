@@ -1,221 +1,220 @@
-name: EYNPlugin
-main: com.example.eynplugin.EYNPlugin
-version: 1.0
-api-version: 1.21
+name: "EYNPlugin"
+main: "com.example.eynplugin.EYNPlugin"
+version: "1.0"
+api-version: "1.21"
 
-description: Everything You Need Plugin
-
-author: YourName
+description: "Everything You Need Plugin"
+author: "YourName"
 
 commands:
   utils:
-    description: Utility commands for the EYN Plugin
-    usage: /<command> 
+    description: "Utility commands for the EYN Plugin"
+    usage: "/<command>"
   fly:
-    description: Toggle flight mode
-    usage: /<command> [player]
-    aliases: [flight]
+    description: "Toggle flight mode"
+    usage: "/<command> [player]"
+    aliases: [ "flight" ]
   back:
-    description: Teleport to last location
-    usage: /<command>
+    description: "Teleport to last location"
+    usage: "/<command>"
   god:
-    description: Toggle invincibility
-    usage: /<command>
+    description: "Toggle invincibility"
+    usage: "/<command>"
   gmc:
-    description: Switch to creative mode
-    usage: /<command>
+    description: "Switch to creative mode"
+    usage: "/<command>"
   gms:
-    description: Switch to survival mode
-    usage: /<command>
+    description: "Switch to survival mode"
+    usage: "/<command>"
   gmsp:
-    description: Switch to spectator mode
-    usage: /<command>
+    description: "Switch to spectator mode"
+    usage: "/<command>"
   gma:
-    description: Switch to adventure mode
-    usage: /<command>
+    description: "Switch to adventure mode"
+    usage: "/<command>"
   weather:
-    description: Change the weather
-    usage: /<command> <rain|thunder|clear|sunny>
+    description: "Change the weather"
+    usage: "/<command> <rain|thunder|clear|sunny>"
   durability:
-    description: Change the durability of the item in hand
-    usage: /<command> <value>
+    description: "Change the durability of the item in hand"
+    usage: "/<command> <value>"
   warp:
-    description: Teleport to a warp location
-    usage: /<command> <name>
+    description: "Teleport to a warp location"
+    usage: "/<command> <name>"
   setwarp:
-    description: Set a new warp location
-    usage: /<command> <name>
+    description: "Set a new warp location"
+    usage: "/<command> <name>"
   delwarp:
-    description: Delete a warp location
-    usage: /<command> <name>
+    description: "Delete a warp location"
+    usage: "/<command> <name>"
   warplist:
-    description: List all available warps
-    usage: /<command>
+    description: "List all available warps"
+    usage: "/<command>"
   renamewarp:
-    description: Rename a warp location
-    usage: /<command> <oldname> <newname>
+    description: "Rename a warp location"
+    usage: "/<command> <oldname> <newname>"
   discord:
-    description: Get the Discord server invite link
-    usage: /<command>
-    aliases: [dc]
+    description: "Get the Discord server invite link"
+    usage: "/<command>"
+    aliases: [ "dc" ]
   kill:
-    description: Kill yourself or another player
-    usage: /<command> [player]
+    description: "Kill yourself or another player"
+    usage: "/<command> [player]"
   killall:
-    description: Kill all players on the server
-    usage: /<command>
+    description: "Kill all players on the server"
+    usage: "/<command>"
   vanish:
-    description: Toggle vanish mode
-    usage: /<command> [player]
-    aliases: [v]
+    description: "Toggle vanish mode"
+    usage: "/<command> [player]"
+    aliases: [ "v" ]
   vanishlist:
-    description: List all vanished players
-    usage: /<command>
-    aliases: [vlist]
+    description: "List all vanished players"
+    usage: "/<command>"
+    aliases: [ "vlist" ]
   playtime:
-    description: Check your or another player's playtime
-    usage: /<command> [player]
+    description: "Check your or another player's playtime"
+    usage: "/<command> [player]"
   playerinfo:
-    description: View detailed information about a player
-    usage: /<command> [player]
-    aliases: [pinfo, pi]
+    description: "View detailed information about a player"
+    usage: "/<command> [player]"
+    aliases: [ "pinfo", "pi" ]
   online:
-    description: View list of online players
-    usage: /<command>
-    aliases: [list, who, players]
+    description: "View list of online players"
+    usage: "/<command>"
+    aliases: [ "list", "who", "players" ]
   clearchat:
-    description: Clear the chat
-    usage: /<command>
-    aliases: [cc]
+    description: "Clear the chat"
+    usage: "/<command>"
+    aliases: [ "cc" ]
   mute:
-    description: Mute a player
-    usage: /<command> <player> <reason>
+    description: "Mute a player"
+    usage: "/<command> <player> <reason>"
   unmute:
-    description: Unmute a player
-    usage: /<command> <player>
+    description: "Unmute a player"
+    usage: "/<command> <player>"
   ban:
-    description: Ban a player permanently
-    usage: /<command> <player> <reason>
+    description: "Ban a player permanently"
+    usage: "/<command> <player> <reason>"
   tempban:
-    description: Ban a player temporarily
-    usage: /<command> <player> <duration> <reason>
+    description: "Ban a player temporarily"
+    usage: "/<command> <player> <duration> <reason>"
   unban:
-    description: Unban a player
-    usage: /<command> <player>
+    description: "Unban a player"
+    usage: "/<command> <player>"
   kick:
-    description: Kick a player from the server
-    usage: /<command> <player> <reason>
+    description: "Kick a player from the server"
+    usage: "/<command> <player> <reason>"
   ping:
-    description: Check your ping or another player's ping
-    usage: /<command> [player]
-    aliases: [latency]
+    description: "Check your ping or another player's ping"
+    usage: "/<command> [player]"
+    aliases: [ "latency" ]
   nick:
-    description: Change your nickname or another player's nickname
-    usage: /<command> [player] <nickname|reset>
-    aliases: [nickname]
+    description: "Change your nickname or another player's nickname"
+    usage: "/<command> [player] <nickname|reset>"
+    aliases: [ "nickname" ]
   home:
-    description: Manage your homes
-    usage: /home <name> [set|del|rename]
-    aliases: [sethome, delhome, renamehome]
+    description: "Manage your homes"
+    usage: "/home <name> [set|del|rename]"
+    aliases: [ "sethome", "delhome", "renamehome" ]
   xp:
-    description: Manage player experience points
-    usage: /xp <give|take|set> <amount> [player]
-    aliases: [exp, experience]
+    description: "Manage player experience points"
+    usage: "/xp <give|take|set> <amount> [player]"
+    aliases: [ "exp", "experience" ]
   worldinfo:
-    description: Display information about the current world
-    usage: /<command>
-    permission: eyn.worldinfo
+    description: "Display information about the current world"
+    usage: "/<command>"
+    permission: "eyn.worldinfo"
   anvil:
-    description: Opens a virtual anvil
-    usage: /<command>
-    permission: eyn.anvil
+    description: "Opens a virtual anvil"
+    usage: "/<command>"
+    permission: "eyn.anvil"
   freeze:
-    description: Freeze or unfreeze a player
-    usage: /<command> <player>
-    permission: eyn.freeze
-    aliases: [togglefreeze]
+    description: "Freeze or unfreeze a player"
+    usage: "/<command> <player>"
+    permission: "eyn.freeze"
+    aliases: [ "togglefreeze" ]
   tp:
-    description: Teleport to a player
-    usage: /<command> <player>
-    permission: eyn.tp
+    description: "Teleport to a player"
+    usage: "/<command> <player>"
+    permission: "eyn.tp"
   tpall:
-    description: Teleport all players to you
-    usage: /<command>
-    permission: eyn.tp
+    description: "Teleport all players to you"
+    usage: "/<command>"
+    permission: "eyn.tp"
   tphere:
-    description: Teleport a player to you
-    usage: /<command> <player>
-    permission: eyn.tp
+    description: "Teleport a player to you"
+    usage: "/<command> <player>"
+    permission: "eyn.tp"
   burn:
-    description: Set a player on fire
-    usage: /<command> <player> [duration]
-    permission: eyn.burn
+    description: "Set a player on fire"
+    usage: "/<command> <player> [duration]"
+    permission: "eyn.burn"
   clearinventory:
-    description: Clear a player's inventory
-    usage: /<command> [player]
-    permission: eyn.clearinventory
-    aliases: [ci, clearinv]
+    description: "Clear a player's inventory"
+    usage: "/<command> [player]"
+    permission: "eyn.clearinventory"
+    aliases: [ "ci", "clearinv" ]
   enderchest:
-    description: Open a player's ender chest
-    usage: /<command> [player]
-    permission: eyn.enderchest
-    aliases: [ec, echest]
+    description: "Open a player's ender chest"
+    usage: "/<command> [player]"
+    permission: "eyn.enderchest"
+    aliases: [ "ec", "echest" ]
   eynreload:
-    description: Reload plugin configuration
-    usage: /<command>
-    permission: eyn.reload
-    aliases: [pluginreload, preload]
+    description: "Reload plugin configuration"
+    usage: "/<command>"
+    permission: "eyn.reload"
+    aliases: [ "pluginreload", "preload" ]
   tpa:
-    description: Send teleport request to a player
-    usage: /<command> <player>
-    permission: eyn.tpa
-    aliases: [teleportrequest]
+    description: "Send teleport request to a player"
+    usage: "/<command> <player>"
+    permission: "eyn.tpa"
+    aliases: [ "teleportrequest" ]
   tpaccept:
-    description: Accept a teleport request
-    usage: /<command>
-    permission: eyn.tpaccept
+    description: "Accept a teleport request"
+    usage: "/<command>"
+    permission: "eyn.tpaccept"
   tpdeny:
-    description: Deny a teleport request
-    usage: /<command>
-    permission: eyn.tpaccept
+    description: "Deny a teleport request"
+    usage: "/<command>"
+    permission: "eyn.tpaccept"
 
 permissions:
   eyn.home:
-    description: Allows using home commands
+    description: "Allows using home commands"
     default: true
   eyn.tp:
-    description: Allows using teleport commands
+    description: "Allows using teleport commands"
     default: op
   eyn.burn:
-    description: Allows burning other players
+    description: "Allows burning other players"
     default: op
   eyn.home.set:
-    description: Allows setting homes
+    description: "Allows setting homes"
     default: true
   eyn.home.delete:
-    description: Allows deleting homes
+    description: "Allows deleting homes"
     default: true
   eyn.home.rename:
-    description: Allows renaming homes
+    description: "Allows renaming homes"
     default: true
   eyn.home.teleport:
-    description: Allows teleporting to homes
+    description: "Allows teleporting to homes"
     default: true
   eyn.home.unlimited:
-    description: Bypass home limits
+    description: "Bypass home limits"
     default: op
   eyn.xp:
-    description: Parent permission for all XP commands
+    description: "Parent permission for all XP commands"
     default: op
   eyn.xp.give:
-    description: Allows giving XP to players
+    description: "Allows giving XP to players"
     default: op
   eyn.xp.take:
-    description: Allows taking XP from players
+    description: "Allows taking XP from players"
     default: op
   eyn.xp.set:
-    description: Allows setting player XP
+    description: "Allows setting player XP"
     default: op
   eyn.xp.others:
-    description: Allows modifying other players' XP
+    description: "Allows modifying other players' XP"
     default: op

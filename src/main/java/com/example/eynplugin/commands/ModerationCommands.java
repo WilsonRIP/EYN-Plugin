@@ -5,13 +5,13 @@ import com.example.eynplugin.craftbukkit.BanLookup;
 import com.example.eynplugin.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.OfflinePlayer;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.model.group.Group;
 
@@ -21,6 +21,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.logging.Logger;
 
+/**
+ * Handles various moderation commands such as mute, ban, kick, freeze, and teleport.
+ * Advanced moderators (those with "eyn.moderation.advanced") can bypass some restrictions
+ * like rank comparisons. Additionally, moderators with "eyn.moderation.advanced.bypass.op"
+ * can moderate server operators.
+ */
 public class ModerationCommands extends BaseCommand {
     private final LuckPermsHandler luckPermsHandler;
     private final Plugin plugin;
@@ -36,65 +42,87 @@ public class ModerationCommands extends BaseCommand {
         this.logger = plugin.getLogger();
     }
 
-    // Logging method for moderation actions
+    /**
+     * Logs a moderation action.
+     *
+     * @param sender     the command sender
+     * @param action     the action type (e.g., "BAN", "MUTE")
+     * @param targetName the target player's name (or identifier)
+     * @param reason     the reason provided, or null if none
+     */
     private void logModerationAction(CommandSender sender, String action, String targetName, String reason) {
-        String senderName = sender instanceof Player ? ((Player) sender).getName() : "CONSOLE";
+        String senderName = (sender instanceof Player) ? ((Player) sender).getName() : "CONSOLE";
         String logMessage = String.format("%s performed %s on %s. Reason: %s", 
-            senderName, action, targetName, reason != null ? reason : "No reason provided");
+                senderName, action, targetName, (reason != null ? reason : "No reason provided"));
         logger.info(logMessage);
     }
 
+    /**
+     * Determines whether the sender can moderate the target.
+     * <p>
+     * Advanced moderators with "eyn.moderation.advanced" may bypass the group weight check.
+     * Moderators without the advanced permission cannot moderate players with equal or higher rank.
+     * Additionally, if the target is an operator, only those with "eyn.moderation.advanced.bypass.op"
+     * can moderate them.
+     * </p>
+     *
+     * @param sender the command sender
+     * @param target the target player
+     * @return true if moderation is allowed, false otherwise
+     */
     private boolean canModerate(CommandSender sender, Player target) {
         if (target == null) return true;
-        
-        // Prevent self-moderation
+
+        // Prevent self-moderation.
         if (sender instanceof Player && sender.getName().equals(target.getName())) {
             sendMessage(sender, "messages.moderation.self_target");
             return false;
         }
 
-        // Check OP immunity
-        if (target.isOp()) {
+        // Check operator immunity; advanced bypass required.
+        if (target.isOp() && !(sender instanceof Player && ((Player) sender).hasPermission("eyn.moderation.advanced.bypass.op"))) {
             sendMessage(sender, "messages.moderation.target_is_op");
             return false;
         }
 
-        // Check group weights if sender is a player
+        // Check group weight restrictions.
         if (sender instanceof Player) {
             Player moderator = (Player) sender;
             int moderatorWeight = getGroupWeight(moderator);
             int targetWeight = getGroupWeight(target);
-
-            if (targetWeight >= moderatorWeight) {
+            boolean isAdvanced = moderator.hasPermission("eyn.moderation.advanced");
+            if (!isAdvanced && targetWeight >= moderatorWeight) {
                 sendMessage(sender, "messages.moderation.insufficient_rank");
                 return false;
             }
         }
-
         return true;
     }
 
+    /**
+     * Retrieves the primary group weight of a player.
+     *
+     * @param player the player whose group weight is retrieved
+     * @return the group weight, or 0 if not available
+     */
     private int getGroupWeight(Player player) {
         if (luckPermsHandler == null) return 0;
-        
         User user = luckPermsHandler.getLuckPerms().getUserManager().getUser(player.getUniqueId());
         if (user == null) return 0;
-
-        Group primaryGroup = luckPermsHandler.getLuckPerms().getGroupManager()
-            .getGroup(user.getPrimaryGroup());
-        if (primaryGroup == null) return 0;
-
-        return primaryGroup.getWeight().orElse(0);
+        Group primaryGroup = luckPermsHandler.getLuckPerms().getGroupManager().getGroup(user.getPrimaryGroup());
+        return (primaryGroup != null) ? primaryGroup.getWeight().orElse(0) : 0;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Base moderation permission check.
         if (!checkPermission(sender instanceof Player ? (Player) sender : null, "eyn.moderation")) {
             sender.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
             return true;
         }
 
-        switch (label.toLowerCase()) {
+        String cmd = command.getName().toLowerCase();
+        switch (cmd) {
             case "mute":
                 handleMute(sender, args);
                 break;
@@ -119,21 +147,26 @@ public class ModerationCommands extends BaseCommand {
             case "tp":
             case "tpall":
             case "tphere":
-                handleTeleport(sender, args, label.toLowerCase());
+                handleTeleport(sender, args, cmd);
                 break;
             case "burn":
                 handleBurn(sender, args);
+                break;
+            default:
+                sender.sendMessage(Utils.colorize(getMessage("messages.unknown_command")));
                 break;
         }
         return true;
     }
 
+    /**
+     * Handles the freeze command.
+     */
     private void handleFreeze(CommandSender sender, String[] args) {
         if (!checkPermission(sender instanceof Player ? (Player) sender : null, "eyn.freeze")) {
             sender.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
             return;
         }
-
         if (args.length < 1) {
             sendMessage(sender, "messages.moderation.freeze.usage");
             return;
@@ -144,44 +177,34 @@ public class ModerationCommands extends BaseCommand {
             sendMessage(sender, "messages.moderation.player_not_found");
             return;
         }
-
-        // Check if sender can moderate the target
-        if (!canModerate(sender, target)) {
-            return;
-        }
+        if (!canModerate(sender, target)) return;
 
         if (target.hasMetadata(FREEZE_METADATA)) {
-            // Unfreeze the player
+            // Unfreeze the player.
             target.removeMetadata(FREEZE_METADATA, plugin);
-            
-            // Broadcast unfreeze message
             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&',
-                getMessage("messages.moderation.freeze.unfreeze_broadcast")
-                    .replace("%player%", sender.getName())
-                    .replace("%target%", target.getName())));
-            
-            // Send message to unfrozen player
+                    getMessage("messages.moderation.freeze.unfreeze_broadcast")
+                            .replace("%player%", sender.getName())
+                            .replace("%target%", target.getName())));
             target.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                getMessage("messages.moderation.freeze.unfreeze_target")));
+                    getMessage("messages.moderation.freeze.unfreeze_target")));
         } else {
-            // Freeze the player
+            // Freeze the player.
             target.setMetadata(FREEZE_METADATA, new FixedMetadataValue(plugin, true));
-            
-            // Broadcast freeze message
             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&',
-                getMessage("messages.moderation.freeze.broadcast")
-                    .replace("%player%", sender.getName())
-                    .replace("%target%", target.getName())));
-            
-            // Send message to frozen player
+                    getMessage("messages.moderation.freeze.broadcast")
+                            .replace("%player%", sender.getName())
+                            .replace("%target%", target.getName())));
             target.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                getMessage("messages.moderation.freeze.target_message")));
-            
-            // Log the freeze action
-            logModerationAction(sender, "FREEZE", target.getName(), args.length > 1 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : null);
+                    getMessage("messages.moderation.freeze.target_message")));
+            String reason = (args.length > 1) ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : null;
+            logModerationAction(sender, "FREEZE", target.getName(), reason);
         }
     }
 
+    /**
+     * Handles the mute command.
+     */
     private boolean handleMute(CommandSender sender, String[] args) {
         if (!checkPermission(sender instanceof Player ? (Player) sender : null, "eyn.mute")) return true;
         if (args.length < 2) {
@@ -197,18 +220,17 @@ public class ModerationCommands extends BaseCommand {
         luckPermsHandler.mutePlayer(target.getUniqueId(), null, reason);
 
         broadcastMessage("messages.moderation.mute.broadcast",
-            "%player%", sender.getName(),
-            "%target%", target.getName(),
-            "%reason%", reason);
-
-        sendMessage(target, "messages.moderation.mute.target_message",
-            "%reason%", reason);
-        
-        // Log the mute action
+                "%player%", sender.getName(),
+                "%target%", target.getName(),
+                "%reason%", reason);
+        sendMessage(target, "messages.moderation.mute.target_message", "%reason%", reason);
         logModerationAction(sender, "MUTE", target.getName(), reason);
         return true;
     }
 
+    /**
+     * Handles the unmute command.
+     */
     private boolean handleUnmute(CommandSender sender, String[] args) {
         if (!checkPermission(sender instanceof Player ? (Player) sender : null, "eyn.unmute")) return true;
         if (args.length < 1) {
@@ -220,15 +242,16 @@ public class ModerationCommands extends BaseCommand {
         if (target == null) return true;
 
         luckPermsHandler.unmutePlayer(target.getUniqueId());
-        
         broadcastMessage("messages.moderation.unmute.broadcast",
-            "%player%", sender.getName(),
-            "%target%", target.getName());
-
+                "%player%", sender.getName(),
+                "%target%", target.getName());
         sendMessage(target, "messages.moderation.unmute.target_message");
         return true;
     }
 
+    /**
+     * Handles the ban command.
+     */
     private boolean handleBan(CommandSender sender, String[] args) {
         if (!checkPermission(sender instanceof Player ? (Player) sender : null, "eyn.ban")) return true;
         if (args.length < 2) {
@@ -236,43 +259,45 @@ public class ModerationCommands extends BaseCommand {
             return true;
         }
 
-        String targetNameOrIp = args[0];
-        if (!IP_PATTERN.matcher(targetNameOrIp).matches()) {
-            Player target = getTarget(sender, targetNameOrIp);
+        String targetIdentifier = args[0];
+        boolean isIP = IP_PATTERN.matcher(targetIdentifier).matches();
+        if (!isIP) {
+            Player target = getTarget(sender, targetIdentifier);
             if (target != null && !canModerate(sender, target)) return true;
         }
 
         String reason = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         String formattedReason = formatMessage("messages.moderation.ban.kick_message")
-            .replace("%reason%", reason);
+                .replace("%reason%", reason);
 
-        if (IP_PATTERN.matcher(targetNameOrIp).matches()) {
-            if (BanLookup.isIpBanned(targetNameOrIp)) {
+        if (isIP) {
+            if (BanLookup.isIpBanned(targetIdentifier)) {
                 sendMessage(sender, "messages.moderation.ban.already_banned");
                 return true;
             }
-            BanLookup.banIp(targetNameOrIp, formattedReason, sender.getName());
+            BanLookup.banIp(targetIdentifier, formattedReason, sender.getName());
             broadcastMessage("messages.moderation.ban.broadcast",
-                "%player%", sender.getName(),
-                "%target%", targetNameOrIp,
-                "%reason%", reason);
+                    "%player%", sender.getName(),
+                    "%target%", targetIdentifier,
+                    "%reason%", reason);
         } else {
-            if (BanLookup.isBanned(targetNameOrIp)) {
+            if (BanLookup.isBanned(targetIdentifier)) {
                 sendMessage(sender, "messages.moderation.ban.already_banned");
                 return true;
             }
-            BanLookup.banPlayer(targetNameOrIp, formattedReason, sender.getName());
+            BanLookup.banPlayer(targetIdentifier, formattedReason, sender.getName());
             broadcastMessage("messages.moderation.ban.broadcast",
-                "%player%", sender.getName(),
-                "%target%", targetNameOrIp,
-                "%reason%", reason);
+                    "%player%", sender.getName(),
+                    "%target%", targetIdentifier,
+                    "%reason%", reason);
         }
-        
-        // Log the ban action
-        logModerationAction(sender, "BAN", targetNameOrIp, reason);
+        logModerationAction(sender, "BAN", targetIdentifier, reason);
         return true;
     }
 
+    /**
+     * Handles the temporary ban command.
+     */
     private boolean handleTempBan(CommandSender sender, String[] args) {
         if (!checkPermission(sender instanceof Player ? (Player) sender : null, "eyn.tempban")) return true;
         if (args.length < 3) {
@@ -289,17 +314,18 @@ public class ModerationCommands extends BaseCommand {
 
         String reason = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
         Date expiry = new Date(System.currentTimeMillis() + duration);
-        
         BanLookup.tempBanPlayer(targetName, reason, expiry, sender.getName());
-        
         broadcastMessage("messages.moderation.tempban.broadcast",
-            "%player%", sender.getName(),
-            "%target%", targetName,
-            "%duration%", formatDuration(duration),
-            "%reason%", reason);
+                "%player%", sender.getName(),
+                "%target%", targetName,
+                "%duration%", formatDuration(duration),
+                "%reason%", reason);
         return true;
     }
 
+    /**
+     * Handles the unban command.
+     */
     private boolean handleUnban(CommandSender sender, String[] args) {
         if (!checkPermission(sender instanceof Player ? (Player) sender : null, "eyn.unban")) return true;
         if (args.length < 1) {
@@ -314,13 +340,15 @@ public class ModerationCommands extends BaseCommand {
         }
 
         BanLookup.unbanPlayer(targetName);
-        
         broadcastMessage("messages.moderation.unban.broadcast",
-            "%player%", sender.getName(),
-            "%target%", targetName);
+                "%player%", sender.getName(),
+                "%target%", targetName);
         return true;
     }
 
+    /**
+     * Handles the kick command.
+     */
     private boolean handleKick(CommandSender sender, String[] args) {
         if (!checkPermission(sender instanceof Player ? (Player) sender : null, "eyn.kick")) return true;
         if (args.length < 2) {
@@ -333,20 +361,19 @@ public class ModerationCommands extends BaseCommand {
 
         String reason = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         String formattedReason = formatMessage("messages.moderation.kick.kick_message")
-            .replace("%reason%", reason);
-
+                .replace("%reason%", reason);
         target.kickPlayer(formattedReason);
-        
         broadcastMessage("messages.moderation.kick.broadcast",
-            "%player%", sender.getName(),
-            "%target%", target.getName(),
-            "%reason%", reason);
-        
-        // Log the kick action
+                "%player%", sender.getName(),
+                "%target%", target.getName(),
+                "%reason%", reason);
         logModerationAction(sender, "KICK", target.getName(), reason);
         return true;
     }
 
+    /**
+     * Handles teleport commands (tp, tpall, tphere).
+     */
     private void handleTeleport(CommandSender sender, String[] args, String commandType) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(Utils.colorize(getMessage("messages.player_only_command")));
@@ -365,26 +392,20 @@ public class ModerationCommands extends BaseCommand {
                     player.sendMessage(Utils.colorize(getMessage("messages.moderation.tp.invalid")));
                     return;
                 }
-
                 Player target = Bukkit.getPlayer(args[0]);
                 if (target == null) {
                     player.sendMessage(Utils.colorize(getMessage("messages.moderation.tp.no_target")));
                     return;
                 }
-
                 if (target.equals(player)) {
                     player.sendMessage(Utils.colorize(getMessage("messages.moderation.tp.self_teleport")));
                     return;
                 }
-
-                // Log the teleport action
                 logModerationAction(sender, "TELEPORT", target.getName(), null);
-                
                 player.teleport(target);
                 player.sendMessage(Utils.colorize(getMessage("messages.moderation.tp.success")
-                    .replace("%target%", target.getName())));
+                        .replace("%target%", target.getName())));
                 break;
-
             case "tpall":
                 int teleportedCount = 0;
                 for (Player p : Bukkit.getOnlinePlayers()) {
@@ -393,73 +414,55 @@ public class ModerationCommands extends BaseCommand {
                         teleportedCount++;
                     }
                 }
-
-                // Log the teleport all action
-                logModerationAction(sender, "TELEPORT_ALL", String.valueOf(teleportedCount) + " players", null);
-                
+                logModerationAction(sender, "TELEPORT_ALL", teleportedCount + " players", null);
                 player.sendMessage(Utils.colorize(getMessage("messages.moderation.tpall.success")));
                 break;
-
             case "tphere":
                 if (args.length == 0) {
                     player.sendMessage(Utils.colorize(getMessage("messages.moderation.tp.invalid")));
                     return;
                 }
-
                 Player targetHere = Bukkit.getPlayer(args[0]);
                 if (targetHere == null) {
                     player.sendMessage(Utils.colorize(getMessage("messages.moderation.tp.no_target")));
                     return;
                 }
-
                 if (targetHere.equals(player)) {
                     player.sendMessage(Utils.colorize(getMessage("messages.moderation.tp.self_teleport")));
                     return;
                 }
-
-                // Log the teleport here action
                 logModerationAction(sender, "TELEPORT_HERE", targetHere.getName(), null);
-                
                 targetHere.teleport(player);
                 player.sendMessage(Utils.colorize(getMessage("messages.moderation.tphere.success")
-                    .replace("%target%", targetHere.getName())));
+                        .replace("%target%", targetHere.getName())));
                 break;
-
             default:
                 player.sendMessage(Utils.colorize(getMessage("messages.moderation.tp.invalid")));
                 break;
         }
     }
 
+    /**
+     * Handles the burn command.
+     */
     private void handleBurn(CommandSender sender, String[] args) {
-        // Check permission for burn command
         if (!checkPermission(sender, "eyn.burn")) {
             sender.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
             return;
         }
-
-        // Validate arguments
         if (args.length < 2) {
             sender.sendMessage(Utils.colorize(getMessage("messages.moderation.burn.usage")));
             return;
         }
-
-        // Find target player
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
             sender.sendMessage(Utils.colorize(getMessage("messages.moderation.player_not_found")));
             return;
         }
-
-        // Prevent self-burn for player senders
-        if (sender instanceof Player playerSender) {
-            if (playerSender.getName().equals(target.getName())) {
-                sender.sendMessage(Utils.colorize(getMessage("messages.moderation.self_target")));
-                return;
-            }
+        if (sender instanceof Player playerSender && playerSender.getName().equals(target.getName())) {
+            sender.sendMessage(Utils.colorize(getMessage("messages.moderation.self_target")));
+            return;
         }
-
-        // Parse burn duration, default to 5 seconds if not specified or invalid
         int duration = 5;
         if (args.length > 2) {
             try {
@@ -469,29 +472,26 @@ public class ModerationCommands extends BaseCommand {
                 return;
             }
         }
-
-        // Set fire ticks (1 second = 20 ticks)
         target.setFireTicks(duration * 20);
-
-        // Log the burn action
         logModerationAction(sender, "BURN", target.getName(), duration + " seconds");
-
-        // Send messages
         target.sendMessage(Utils.colorize(getMessage("messages.moderation.burn.target_message")
-            .replace("%duration%", String.valueOf(duration))));
-        
+                .replace("%duration%", String.valueOf(duration))));
         sender.sendMessage(Utils.colorize(getMessage("messages.moderation.burn.sender_message")
-            .replace("%target%", target.getName())
-            .replace("%duration%", String.valueOf(duration))));
+                .replace("%target%", target.getName())
+                .replace("%duration%", String.valueOf(duration))));
     }
 
+    /**
+     * Parses a duration string (e.g., "1d", "2h") into milliseconds.
+     *
+     * @param duration the duration string
+     * @return the duration in milliseconds, or -1 if invalid
+     */
     private long parseDuration(String duration) {
         Matcher matcher = DURATION_PATTERN.matcher(duration);
         if (!matcher.matches()) return -1;
-        
         long value = Long.parseLong(matcher.group(1));
         char unit = matcher.group(2).charAt(0);
-        
         return switch (unit) {
             case 'd' -> TimeUnit.DAYS.toMillis(value);
             case 'h' -> TimeUnit.HOURS.toMillis(value);
@@ -501,6 +501,12 @@ public class ModerationCommands extends BaseCommand {
         };
     }
 
+    /**
+     * Formats a duration in milliseconds into a readable string.
+     *
+     * @param millis the duration in milliseconds
+     * @return a formatted duration string with appropriate units
+     */
     private String formatDuration(long millis) {
         if (millis < TimeUnit.MINUTES.toMillis(1)) {
             return TimeUnit.MILLISECONDS.toSeconds(millis) + "s";
@@ -520,10 +526,8 @@ public class ModerationCommands extends BaseCommand {
         if (!sender.hasPermission("eyn." + cmd)) {
             return super.onTabComplete(sender, command, alias, args);
         }
-
         if (args.length == 1) {
             if (cmd.equals("unban")) {
-                // Get all banned players using our BanLookup utility
                 Set<String> bannedPlayers = new HashSet<>();
                 for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
                     if (BanLookup.isBanned(player.getName())) {
@@ -534,13 +538,11 @@ public class ModerationCommands extends BaseCommand {
             }
             return filterStartingWith(getOnlinePlayerNames(), args[0]);
         }
-
         if (args.length == 2 && cmd.equals("tempban")) {
             return Arrays.asList("1d", "2d", "7d", "14d", "30d",
-                               "1h", "2h", "4h", "8h", "12h",
-                               "30m", "1m", "5m", "10m", "15m");
+                    "1h", "2h", "4h", "8h", "12h",
+                    "30m", "1m", "5m", "10m", "15m");
         }
-
         return super.onTabComplete(sender, command, alias, args);
     }
-} 
+}

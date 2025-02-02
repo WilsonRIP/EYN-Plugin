@@ -6,11 +6,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import com.example.eynplugin.api.LuckPermsHandler;
+
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ClearChatCommand extends BaseCommand {
-    private final HashMap<UUID, Long> cooldowns = new HashMap<>();
+    private final Map<UUID, Long> cooldowns = new HashMap<>();
     private static final int COOLDOWN_SECONDS = 3;
 
     public ClearChatCommand(LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig) {
@@ -19,6 +21,7 @@ public class ClearChatCommand extends BaseCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // If sender is not a player, simply clear chat using sender's name
         if (!(sender instanceof Player)) {
             clearChat(sender.getName());
             return true;
@@ -29,29 +32,23 @@ public class ClearChatCommand extends BaseCommand {
             return true;
         }
 
-        // Check cooldown
-        if (cooldowns.containsKey(player.getUniqueId())) {
-            long secondsLeft = ((cooldowns.get(player.getUniqueId()) / 1000) + COOLDOWN_SECONDS) 
-                - (System.currentTimeMillis() / 1000);
-            if (secondsLeft > 0) {
-                sendMessage(player, "messages.clearchat.cooldown", "%seconds%", String.valueOf(secondsLeft));
-                return true;
-            }
+        long now = System.currentTimeMillis();
+        long lastUsed = cooldowns.getOrDefault(player.getUniqueId(), 0L);
+        if ((now - lastUsed) < (COOLDOWN_SECONDS * 1000L)) {
+            long secondsLeft = COOLDOWN_SECONDS - ((now - lastUsed) / 1000);
+            sendMessage(player, "messages.clearchat.cooldown", "%seconds%", String.valueOf(secondsLeft));
+            return true;
         }
 
-        // Set cooldown
-        cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
+        // Update cooldown and clear chat
+        cooldowns.put(player.getUniqueId(), now);
         clearChat(player.getName());
         return true;
     }
 
     private void clearChat(String clearer) {
-        StringBuilder blank = new StringBuilder();
-        for (int i = 0; i < 100; i++) {
-            blank.append("\n");
-        }
-        
-        String blankLines = blank.toString();
+        // Using Java 11 String.repeat to generate 100 blank lines
+        String blankLines = "\n".repeat(100);
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(blankLines);
             sendMessage(player, "messages.clearchat.cleared", "%player%", clearer);
