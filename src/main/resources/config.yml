@@ -2,6 +2,18 @@
 
 settings:
   example-setting: true
+  player-info:
+    mask-ips: true
+    show-exact-coords: false
+  nametag:
+    update-radius: 30
+    log-changes: true
+    prevent-bypass: true
+  messaging:
+    cooldown: 3
+    socialspy-format: '&7[SPY] &d%sender% &8-> &d%receiver%&7: %message%'
+    reply-prefix: '~'
+    allow-message-toggling: true
 
 # EYN Plugin Configuration
 
@@ -14,3 +26,58 @@ heal:
   food_level: 20      # Food level to set (0-20)
   clear_fire: true    # Whether to extinguish players
   clear_effects: true # Whether to remove potion effects 
+
+permissions:
+  override:
+    eyn.nametag.others: 'group.admin'
+    eyn.vanish.others: 'group.moderator' 
+
+cooldowns:
+  clearchat: 3
+  enchant: 10
+  heal: 30
+
+# Command configurations
+commands:
+  msg:
+    enabled: true
+    aliases: [message, m, tell]
+    cooldown: 3
+    block-system:
+      enabled: true
+      max-blocks: 50
+  nametag:
+    enabled: true
+    default-visibility: true
+    max-length: 16
+    allow-colors: false
+    update-delay-ticks: 20
+
+# Message configurations (matches your message keys)
+messages:
+  player_only_command: '&cThis command can only be used by players.'
+  no_permission: '&cYou do not have permission to do that.'
+  
+  msg:
+    usage: '&cUsage: /msg <player> <message>'
+    sent: '&7[You &8-> &7%target%] &f%message%'
+    received: '&7[%sender% &8-> &7You] &f%message%'
+    blocked: '&cYou cannot message %target%'
+    target_not_found: '&cPlayer %target% not found'
+
+  nametag:
+    hidden_self: '&7Your nametag is now hidden'
+    visible_self: '&aYour nametag is now visible'
+    hidden_other: '&7Hidden %player%''s nametag'
+    visible_other: '&aShowed %player%''s nametag'
+    hidden_by: '&7Your nametag was hidden by %player%'
+    visible_by: '&aYour nametag was shown by %player%'
+
+# Module toggles
+modules:
+  vanish: true
+  nick: true
+  teleport: true
+  gamemode: true
+  enchant: true
+  enderchest: true 
