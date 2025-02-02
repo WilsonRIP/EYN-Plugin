@@ -12,18 +12,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.bukkit.plugin.Plugin;
 
 public class NameTagCommand extends BaseCommand {
     private final Set<UUID> hiddenNameTags = new HashSet<>();
+    private final Plugin plugin;
 
-    public NameTagCommand(LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig) {
+    public NameTagCommand(LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig, Plugin plugin) {
         super(luckPermsHandler, messagesConfig);
+        this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(translate("messages.player_only_command"));
+            sender.sendMessage(formatMessage("messages.player_only_command"));
             return true;
         }
 
@@ -61,18 +64,13 @@ public class NameTagCommand extends BaseCommand {
     }
 
     private void updateNameTagVisibility(Player target, boolean visible) {
-        // 0x08 is the bitmask for nametag visibility (3rd bit)
-        int flags = target.getEntityId();
-        if (!visible) flags |= 0x08;
-        else flags &= ~0x08;
-
-        target.setMetadata("nametag", new FixedMetadataValue(getPlugin(), !visible));
+        target.setMetadata("nametag", new FixedMetadataValue(plugin, !visible));
         
         // Update visibility for all online players
         Bukkit.getOnlinePlayers().forEach(p -> {
             if (p.canSee(target) && p != target) {
-                p.hidePlayer(getPlugin(), target);
-                p.showPlayer(getPlugin(), target);
+                p.hidePlayer(plugin, target);
+                p.showPlayer(plugin, target);
             }
         });
     }

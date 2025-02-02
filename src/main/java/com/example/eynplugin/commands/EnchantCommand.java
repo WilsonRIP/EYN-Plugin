@@ -70,7 +70,6 @@ public class EnchantCommand extends BaseCommand {
 
     @SuppressWarnings("deprecation") // Suppress warnings for getKey() usage
     private String formatEnchantName(Enchantment enchant) {
-        @SuppressWarnings("deprecation")
 		String[] words = enchant.getKey().getKey().split("_");
         return Arrays.stream(words)
             .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
@@ -97,5 +96,45 @@ public class EnchantCommand extends BaseCommand {
         }
         
         return Collections.emptyList();
+    }
+
+    private boolean handleEnchantList(Player player) {
+        @SuppressWarnings("deprecation")
+        String list = Registry.ENCHANTMENT.stream()
+            .map(enchant -> formatEnchantName(enchant) + " (" + enchant.getKey().getKey() + ")")
+            .collect(Collectors.joining(", "));
+        sendMessage(player, "messages.enchant.list", "%enchantments%", list);
+        return true;
+    }
+
+    @SuppressWarnings("deprecation")
+    private Enchantment findEnchantment(String input) {
+        return Registry.ENCHANTMENT.stream()
+            .filter(enchant -> enchant.getKey().getKey().equalsIgnoreCase(input) || 
+                formatEnchantName(enchant).equalsIgnoreCase(input))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private boolean isValidLevel(Enchantment enchant, int level) {
+        return level >= enchant.getStartLevel() && level <= enchant.getMaxLevel();
+    }
+
+    private void applyEnchantment(ItemStack item, Enchantment enchant, int level) {
+        if (item.getType().name().endsWith("ENCHANTED_BOOK")) {
+            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+            meta.addStoredEnchant(enchant, level, true);
+            item.setItemMeta(meta);
+        } else {
+            ItemMeta meta = item.getItemMeta();
+            meta.addEnchant(enchant, level, true);
+            item.setItemMeta(meta);
+        }
+    }
+
+    private void sendSuccessMessage(Player player, Enchantment enchant, int level) {
+        sendMessage(player, "messages.enchant.success", 
+            "%enchant%", formatEnchantName(enchant),
+            "%level%", String.valueOf(level));
     }
 }

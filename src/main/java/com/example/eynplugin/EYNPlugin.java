@@ -218,6 +218,9 @@ public class EYNPlugin extends JavaPlugin {
 
         // Register heal command
         registerCommand("heal", new HealCommand(luckPermsHandler, messagesConfig));
+
+        // Register NameTag command
+        registerCommand("nametag", new NameTagCommand(luckPermsHandler, messagesConfig, this));
     }
 
     private void registerWarpCommands() {
