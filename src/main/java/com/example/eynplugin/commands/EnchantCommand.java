@@ -8,6 +8,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,17 +22,17 @@ public class EnchantCommand extends BaseCommand {
         super(luckPermsHandler, messagesConfig);
     }
 
-    @SuppressWarnings("deprecation") // Suppress warnings for getKey() usage
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sendMessage(sender, "messages.player_only_command");
             return true;
         }
 
-        Player player = (Player) sender;
-        if (!checkPermission(player, "eyn.enchant")) {
-            return true;
+        if (!checkPermission(player, "eyn.enchant")) return true;
+
+        if (args.length < 1 || args[0].equalsIgnoreCase("list")) {
+            return handleEnchantList(player);
         }
 
         if (args.length < 2) {
@@ -45,34 +47,31 @@ public class EnchantCommand extends BaseCommand {
         }
 
         try {
-            String enchantName = args[0].toLowerCase();
-            // Use the registry stream instead of getValues()
-            Enchantment enchant = Registry.ENCHANTMENT.stream()
-                .filter(e -> e.getKey().getKey().toLowerCase().contains(enchantName))
-                .findFirst()
-                .orElse(null);
-
+            Enchantment enchant = findEnchantment(args[0]);
             if (enchant == null) {
                 sendMessage(player, "messages.enchant.invalid_enchant");
                 return true;
             }
 
             int level = Integer.parseInt(args[1]);
-            item.addUnsafeEnchantment(enchant, level);
-            sendMessage(player, "messages.enchant.success",
-                        "%enchant%", formatEnchantName(enchant),
-                        "%level%", String.valueOf(level));
+            if (!isValidLevel(enchant, level)) {
+                sendMessage(player, "messages.enchant.invalid_level_range");
+                return true;
+            }
+
+            applyEnchantment(item, enchant, level);
+            sendSuccessMessage(player, enchant, level);
+            
         } catch (NumberFormatException e) {
             sendMessage(player, "messages.enchant.invalid_level");
         }
         return true;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // Suppress warnings for getKey() usage
     private String formatEnchantName(Enchantment enchant) {
-        // Retrieve the key using getKey() and split underscores to format the name
-        String name = enchant.getKey().getKey();
-        String[] words = name.split("_");
+        @SuppressWarnings("deprecation")
+		String[] words = enchant.getKey().getKey().split("_");
         return Arrays.stream(words)
             .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
             .collect(Collectors.joining(" "));
