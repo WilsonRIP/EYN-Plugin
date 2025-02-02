@@ -8,3 +8,9 @@ settings:
 # Discord invite link
 discord:
   link: "https://discord.gg/example"  # Replace with your Discord invite link 
+
+heal:
+  max_health: 20.0    # Default max health (double value)
+  food_level: 20      # Food level to set (0-20)
+  clear_fire: true    # Whether to extinguish players
+  clear_effects: true # Whether to remove potion effects 

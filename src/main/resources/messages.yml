@@ -297,3 +297,8 @@ messages:
     success: "&aApplied %enchant% %level% to your item!"
     list_header: "&aAvailable Enchantments:"
     list_item: "&7- &e%enchant% &7(%key%)"
+
+  heal:
+    success: "&aYou have been healed!"
+    other_success: "&aHealed &e%player%"
+    healed_by: "&aYou were healed by &e%player%"

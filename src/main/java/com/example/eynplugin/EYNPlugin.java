@@ -215,6 +215,9 @@ public class EYNPlugin extends JavaPlugin {
 
         // Register miscellaneous commands (includes gamemode, ping, nick, xp, worldinfo, etc.)
         registerMiscCommands();
+
+        // Register heal command
+        registerCommand("heal", new HealCommand(luckPermsHandler, messagesConfig));
     }
 
     private void registerWarpCommands() {

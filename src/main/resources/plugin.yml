@@ -182,6 +182,12 @@ commands:
     usage: "/enchant <enchantment> <level> [player]"
     permission: "eyn.enchant"
     permission-message: "&cYou do not have permission to use this command."
+  heal:
+    description: "Heal yourself or another player"
+    usage: "/<command> [player]"
+    aliases: [cure]
+    permission: eyn.heal
+    permission-message: "&cYou don't have permission to heal players!"
 
 permissions:
   eyn.home:

@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class EnchantCommand extends BaseCommand {
@@ -66,7 +68,7 @@ public class EnchantCommand extends BaseCommand {
         return true;
     }
 
-    @SuppressWarnings("deprecation") // Suppress warnings for getKey() usage
+    @SuppressWarnings("deprecation")
     private String formatEnchantName(Enchantment enchant) {
         // Retrieve the key using getKey() and split underscores to format the name
         String name = enchant.getKey().getKey();
@@ -74,5 +76,27 @@ public class EnchantCommand extends BaseCommand {
         return Arrays.stream(words)
             .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
             .collect(Collectors.joining(" "));
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            return Registry.ENCHANTMENT.stream()
+                .map(enchant -> {
+                    String key = enchant.getKey().getKey();
+                    String name = formatEnchantName(enchant);
+                    return Arrays.asList(key, name);
+                })
+                .flatMap(List::stream)
+                .filter(s -> s.toLowerCase().contains(args[0].toLowerCase()))
+                .collect(Collectors.toList());
+        }
+        
+        if (args.length == 2) {
+            return Arrays.asList("1", "10", "100", "1000", "<level>");
+        }
+        
+        return Collections.emptyList();
     }
 }
