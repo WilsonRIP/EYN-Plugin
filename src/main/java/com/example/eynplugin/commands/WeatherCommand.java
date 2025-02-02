@@ -8,7 +8,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
-import java.util.Arrays;
+
+import java.util.Collections;
 import java.util.List;
 
 public class WeatherCommand extends BaseCommand {
@@ -19,42 +20,45 @@ public class WeatherCommand extends BaseCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Ensure only players can run this command.
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("messages.player_only_command")));
+            sender.sendMessage(colorize(getMessage("messages.player_only_command")));
             return true;
         }
 
-        Player player = (Player) sender;
+        final Player player = (Player) sender;
+        // Check for required permission.
         if (!Utils.checkPermission(player, "eyn.weather")) {
-            player.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
+            player.sendMessage(colorize(getMessage("messages.no_permission")));
             return true;
         }
 
+        // Ensure an argument is provided.
         if (args.length == 0) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("messages.weather.invalid")));
+            sendMessage(player, "messages.weather.invalid");
             return true;
         }
 
-        World world = player.getWorld();
+        final World world = player.getWorld();
         switch (args[0].toLowerCase()) {
             case "rain":
                 world.setStorm(true);
                 world.setThundering(false);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("messages.weather.rain")));
+                sendMessage(player, "messages.weather.rain");
                 break;
             case "thunder":
                 world.setStorm(true);
                 world.setThundering(true);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("messages.weather.thunder")));
+                sendMessage(player, "messages.weather.thunder");
                 break;
             case "clear":
             case "sunny":
                 world.setStorm(false);
                 world.setThundering(false);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("messages.weather.clear")));
+                sendMessage(player, "messages.weather.clear");
                 break;
             default:
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("messages.weather.invalid")));
+                sendMessage(player, "messages.weather.invalid");
                 break;
         }
         return true;
@@ -62,9 +66,30 @@ public class WeatherCommand extends BaseCommand {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        // Provide tab completion for the first argument only.
         if (args.length == 1) {
-            return Arrays.asList("rain", "thunder", "clear", "sunny");
+            return Collections.unmodifiableList(List.of("rain", "thunder", "clear", "sunny"));
         }
         return null;
     }
-} 
+
+    /**
+     * Helper method to retrieve and send a colorized message to a player.
+     *
+     * @param player The player to send the message to.
+     * @param messageKey The key used to retrieve the message from the config.
+     */
+    private void sendMessage(Player player, String messageKey) {
+        player.sendMessage(colorize(getMessage(messageKey)));
+    }
+
+    /**
+     * Helper method for colorizing messages.
+     *
+     * @param message The message to colorize.
+     * @return The colorized message.
+     */
+    private String colorize(String message) {
+        return ChatColor.translateAlternateColorCodes('&', message);
+    }
+}

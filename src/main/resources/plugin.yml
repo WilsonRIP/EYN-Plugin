@@ -177,6 +177,11 @@ commands:
     description: "Deny a teleport request"
     usage: "/<command>"
     permission: "eyn.tpaccept"
+  enchant:
+    description: "Enchants the item in hand with the specified enchantment."
+    usage: "/enchant <enchantment> <level> [player]"
+    permission: "eyn.enchant"
+    permission-message: "&cYou do not have permission to use this command."
 
 permissions:
   eyn.home:

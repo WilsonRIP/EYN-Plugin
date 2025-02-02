@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import com.example.eynplugin.craftbukkit.SetExpFix;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,42 +20,64 @@ public class XPCommand extends BaseCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!checkPermission(sender, PERMISSION_BASE)) return true;
+        // Verify the sender has the base permission
+        if (!checkPermission(sender, PERMISSION_BASE)) {
+            return true;
+        }
+
+        // Validate arguments length
         if (args.length < 2) {
             sendMessage(sender, "messages.xp.usage");
             return true;
         }
 
-        String action = args[0].toLowerCase();
+        final String action = args[0].toLowerCase();
         if (!SUBCOMMANDS.contains(action)) {
             sendMessage(sender, "messages.xp.usage");
             return true;
         }
 
+        // Validate the amount parameter
         if (!isPositiveInteger(args[1])) {
             sendMessage(sender, "messages.xp.invalid_amount");
             return true;
         }
+        final int amount = Integer.parseInt(args[1]);
 
-        int amount = Integer.parseInt(args[1]);
-        Player target;
-
+        // Determine the target player
+        final Player target;
         if (args.length > 2) {
-            if (!checkPermission(sender, PERMISSION_OTHERS)) return true;
+            // Must have permission to modify others' XP
+            if (!checkPermission(sender, PERMISSION_OTHERS)) {
+                return true;
+            }
             target = getTarget(sender, args[2]);
-            if (target == null) return true;
+            if (target == null) {
+                return true;
+            }
         } else {
-            if (!checkPlayer(sender)) return true;
+            if (!checkPlayer(sender)) {
+                return true;
+            }
             target = (Player) sender;
         }
 
+        // Process the XP change based on the action
         handleXPChange(sender, target, action, amount);
         return true;
     }
 
+    /**
+     * Handles the XP change logic and sends appropriate messages to involved parties.
+     *
+     * @param sender The command sender.
+     * @param target The target player whose XP is being modified.
+     * @param action The XP action: give, take, or set.
+     * @param amount The amount of XP to process.
+     */
     private void handleXPChange(CommandSender sender, Player target, String action, int amount) {
-        int currentExp = SetExpFix.getTotalExperience(target);
-        int newExp;
+        final int currentExp = SetExpFix.getTotalExperience(target);
+        final int newExp;
 
         switch (action) {
             case "give":
@@ -71,19 +94,20 @@ public class XPCommand extends BaseCommand {
         }
 
         SetExpFix.setTotalExperience(target, newExp);
-        
+
+        // Message keys are constructed based on action type and target (self or other)
         if (target == sender) {
-            sendMessage(sender, "messages.xp." + action + ".self", 
-                "%amount%", String.valueOf(amount),
-                "%total%", String.valueOf(newExp));
+            sendMessage(sender, "messages.xp." + action + ".self",
+                    "%amount%", String.valueOf(amount),
+                    "%total%", String.valueOf(newExp));
         } else {
             sendMessage(sender, "messages.xp." + action + ".other",
-                "%player%", target.getName(),
-                "%amount%", String.valueOf(amount),
-                "%total%", String.valueOf(newExp));
+                    "%player%", target.getName(),
+                    "%amount%", String.valueOf(amount),
+                    "%total%", String.valueOf(newExp));
             sendMessage(target, "messages.xp." + action + ".target",
-                "%amount%", String.valueOf(amount),
-                "%total%", String.valueOf(newExp));
+                    "%amount%", String.valueOf(amount),
+                    "%total%", String.valueOf(newExp));
         }
     }
 
@@ -103,4 +127,4 @@ public class XPCommand extends BaseCommand {
 
         return super.onTabComplete(sender, command, alias, args);
     }
-} 
+}
