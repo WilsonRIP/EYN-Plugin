@@ -246,6 +246,10 @@ public class EYNPlugin extends JavaPlugin {
         registerCommand("playerinfo", new PlayerInfoCommand(luckPermsHandler, messagesConfig));
         registerCommand("online", new OnlinePlayersCommand(luckPermsHandler, messagesConfig));
         registerCommand("clearchat", new ClearChatCommand(luckPermsHandler, messagesConfig));
+        registerCommand("anvil", new AnvilCommand(luckPermsHandler, messagesConfig));
+        registerCommand("smithing", new SmithingTableCommand(luckPermsHandler, messagesConfig));
+        registerCommand("enderchest", new EnderChestCommand(luckPermsHandler, messagesConfig));
+        registerCommand("clearinventory", new ClearInventoryCommand(luckPermsHandler, messagesConfig));
     }
 
     private void registerModerationCommands() {
@@ -261,10 +265,6 @@ public class EYNPlugin extends JavaPlugin {
         registerCommand("nick", new NickCommand(messagesConfig));
         registerCommand("xp", new XPCommand(messagesConfig));
         registerCommand("worldinfo", new WorldInfoCommand(luckPermsHandler, messagesConfig));
-        registerCommand("anvil", new AnvilCommand(luckPermsHandler, messagesConfig));
-        registerCommand("home", new HomeCommand(homeManager, getConfig(), messagesConfig));
-        registerCommand("clearinventory", new ClearInventoryCommand(luckPermsHandler, messagesConfig));
-        registerCommand("enderchest", new EnderChestCommand(luckPermsHandler, messagesConfig));
         registerCommand("msg", new MsgCommand(luckPermsHandler, messagesConfig));
         registerCommand("enchant", new EnchantCommand(luckPermsHandler, messagesConfig));
         

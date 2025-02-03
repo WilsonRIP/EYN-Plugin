@@ -188,6 +188,12 @@ commands:
     aliases: [cure]
     permission: eyn.heal
     permission-message: "&cYou don't have permission to heal players!"
+  smithing:
+    description: "Opens a virtual smithing table"
+    usage: "/<command>"
+    permission: eyn.smithing
+    permission-message: "&cYou don't have permission to use the smithing table!"
+    aliases: [smithingtable]
 
 permissions:
   eyn.home:
@@ -229,3 +235,6 @@ permissions:
   eyn.xp.others:
     description: "Allows modifying other players' XP"
     default: op
+  eyn.smithing:
+    description: "Allows using the smithing table command"
+    default: true

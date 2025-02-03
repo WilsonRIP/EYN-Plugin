@@ -309,3 +309,7 @@ messages:
   hidden_other: "&7%player%'s nametag is now hidden!"
   visible_by: "&aYour nametag was made visible by %player%"
   hidden_by: "&7Your nametag was hidden by %player%"
+
+  smithing:
+    opened: "&a&lOpened virtual smithing table!"
+    error: "&c&lFailed to open smithing table!"
