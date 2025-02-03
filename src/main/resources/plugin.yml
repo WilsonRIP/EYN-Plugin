@@ -194,6 +194,12 @@ commands:
     permission: eyn.smithing
     permission-message: "&cYou don't have permission to use the smithing table!"
     aliases: [smithingtable]
+  pay:
+    description: "Send money to another player"
+    usage: "/<command> <player> <amount>"
+    permission: eyn.pay
+    permission-message: "&cYou don't have permission to use this command!"
+    aliases: [sendmoney]
 
 permissions:
   eyn.home:
@@ -237,4 +243,7 @@ permissions:
     default: op
   eyn.smithing:
     description: "Allows using the smithing table command"
+    default: true
+  eyn.pay:
+    description: "Allows using the pay command"
     default: true

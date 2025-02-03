@@ -313,3 +313,13 @@ messages:
   smithing:
     opened: "&a&lOpened virtual smithing table!"
     error: "&c&lFailed to open smithing table!"
+
+  pay:
+    usage: "&cUsage: /pay <player> <amount>"
+    player_not_found: "&cPlayer %player% not found!"
+    invalid_amount: "&cPlease enter a valid amount!"
+    insufficient_funds: "&cYou don't have enough money! You need: $%amount%"
+    success_sender: "&aYou sent $%amount% to %player%"
+    success_receiver: "&aYou received $%amount% from %player%"
+    self_pay: "&cYou cannot send money to yourself!"
+    minimum_amount: "&cThe minimum amount you can send is $1"

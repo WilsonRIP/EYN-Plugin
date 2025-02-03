@@ -250,6 +250,7 @@ public class EYNPlugin extends JavaPlugin {
         registerCommand("smithing", new SmithingTableCommand(luckPermsHandler, messagesConfig));
         registerCommand("enderchest", new EnderChestCommand(luckPermsHandler, messagesConfig));
         registerCommand("clearinventory", new ClearInventoryCommand(luckPermsHandler, messagesConfig));
+        registerCommand("pay", new PayCommand(luckPermsHandler, messagesConfig, economy));
     }
 
     private void registerModerationCommands() {
