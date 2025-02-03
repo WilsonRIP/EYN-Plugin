@@ -200,6 +200,12 @@ commands:
     permission: eyn.pay
     permission-message: "&cYou don't have permission to use this command!"
     aliases: [sendmoney]
+  balance:
+    description: "Check your balance or another player's balance"
+    usage: "/<command> [player]"
+    permission: eyn.balance
+    permission-message: "&cYou don't have permission to use this command!"
+    aliases: [bal, money]
 
 permissions:
   eyn.home:
@@ -247,3 +253,9 @@ permissions:
   eyn.pay:
     description: "Allows using the pay command"
     default: true
+  eyn.balance:
+    description: "Allows checking own balance"
+    default: true
+  eyn.balance.others:
+    description: "Allows checking other players' balances"
+    default: op
