@@ -1,33 +1,53 @@
 package com.example.eynplugin.commands;
 
+import com.example.eynplugin.storage.HomeManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import com.example.eynplugin.storage.HomeManager;
 
 /**
  * Handles home-related commands for players.
+ * <p>
+ * Supported commands:
+ * - /home <name>                 : Teleports to a home.
+ * - /home set <name>             : Sets a home.
+ * - /home del (or delete) <name> : Deletes a home.
+ * - /home rename <old> <new>     : Renames a home.
+ * </p>
  */
-public class HomeCommand implements CommandExecutor {
+public class HomeCommand implements org.bukkit.command.CommandExecutor {
+
     private final HomeManager homeManager;
     private final FileConfiguration config;
     private final FileConfiguration messagesConfig;
 
-    public HomeCommand(HomeManager homeManager, FileConfiguration config, FileConfiguration messagesConfig) {
+    /**
+     * Constructs a new HomeCommand.
+     *
+     * @param homeManager    the home manager instance.
+     * @param config         the main configuration file.
+     * @param messagesConfig the messages configuration file.
+     */
+    public HomeCommand(final HomeManager homeManager, final FileConfiguration config, final FileConfiguration messagesConfig) {
         this.homeManager = homeManager;
         this.config = config;
         this.messagesConfig = messagesConfig;
     }
 
     /**
-     * Processes the home commands including setting, deleting, renaming, and teleporting to homes.
+     * Processes the /home command.
+     *
+     * @param sender  the command sender.
+     * @param command the executed command.
+     * @param label   the alias used.
+     * @param args    the command arguments.
+     * @return true after processing the command.
      */
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(formatMessage("messages.player_only_command"));
             return true;
@@ -77,8 +97,8 @@ public class HomeCommand implements CommandExecutor {
     /**
      * Sets a home for the player.
      *
-     * @param player   the player setting the home
-     * @param homeName the name of the home
+     * @param player   the player setting the home.
+     * @param homeName the name of the home.
      */
     private void setHome(final Player player, final String homeName) {
         if (!player.hasPermission("eyn.home.set")) {
@@ -88,21 +108,19 @@ public class HomeCommand implements CommandExecutor {
 
         final int maxHomes = getMaxHomes(player);
         if (homeManager.getHomeCount(player.getUniqueId()) >= maxHomes && !player.hasPermission("eyn.home.unlimited")) {
-            player.sendMessage(formatMessage("messages.home.sethome.limit")
-                    .replace("%max%", String.valueOf(maxHomes)));
+            player.sendMessage(formatMessage("messages.home.sethome.limit").replace("%max%", String.valueOf(maxHomes)));
             return;
         }
 
         homeManager.setHome(player.getUniqueId(), homeName, player.getLocation());
-        player.sendMessage(formatMessage("messages.home.sethome.success")
-                .replace("%name%", homeName));
+        player.sendMessage(formatMessage("messages.home.sethome.success").replace("%name%", homeName));
     }
 
     /**
      * Deletes a player's home.
      *
-     * @param player   the player deleting the home
-     * @param homeName the name of the home to delete
+     * @param player   the player deleting the home.
+     * @param homeName the name of the home to delete.
      */
     private void deleteHome(final Player player, final String homeName) {
         if (!player.hasPermission("eyn.home.delete")) {
@@ -114,17 +132,15 @@ public class HomeCommand implements CommandExecutor {
             player.sendMessage(formatMessage("messages.home.not_found"));
             return;
         }
-
-        player.sendMessage(formatMessage("messages.home.delhome.success")
-                .replace("%name%", homeName));
+        player.sendMessage(formatMessage("messages.home.delhome.success").replace("%name%", homeName));
     }
 
     /**
      * Renames an existing home for the player.
      *
-     * @param player  the player renaming the home
-     * @param oldName the current name of the home
-     * @param newName the new name for the home
+     * @param player  the player renaming the home.
+     * @param oldName the current name of the home.
+     * @param newName the new name for the home.
      */
     private void renameHome(final Player player, final String oldName, final String newName) {
         if (!player.hasPermission("eyn.home.rename")) {
@@ -145,8 +161,8 @@ public class HomeCommand implements CommandExecutor {
     /**
      * Teleports the player to the specified home.
      *
-     * @param player   the player to teleport
-     * @param homeName the name of the home to teleport to
+     * @param player   the player to teleport.
+     * @param homeName the name of the home.
      */
     private void teleportToHome(final Player player, final String homeName) {
         if (!player.hasPermission("eyn.home.teleport")) {
@@ -159,17 +175,15 @@ public class HomeCommand implements CommandExecutor {
             player.sendMessage(formatMessage("messages.home.not_found"));
             return;
         }
-
         player.teleport(home);
-        player.sendMessage(formatMessage("messages.home.teleport.success")
-                .replace("%name%", homeName));
+        player.sendMessage(formatMessage("messages.home.teleport.success").replace("%name%", homeName));
     }
 
     /**
-     * Determines the maximum number of homes a player can have based on permissions.
+     * Determines the maximum number of homes a player can have based on their permissions.
      *
-     * @param player the player to check
-     * @return the maximum number of homes
+     * @param player the player to check.
+     * @return the maximum number of homes.
      */
     private int getMaxHomes(final Player player) {
         for (int i = 100; i > 0; i--) {
@@ -183,8 +197,8 @@ public class HomeCommand implements CommandExecutor {
     /**
      * Formats a message from the messages configuration by applying alternate color codes.
      *
-     * @param key the configuration key for the message
-     * @return the formatted message
+     * @param key the configuration key for the message.
+     * @return the formatted message.
      */
     private String formatMessage(final String key) {
         return ChatColor.translateAlternateColorCodes('&',
@@ -194,7 +208,7 @@ public class HomeCommand implements CommandExecutor {
     /**
      * Sends a standard no-permission message to the player.
      *
-     * @param player the player to notify
+     * @param player the player to notify.
      */
     private void sendNoPermission(final Player player) {
         player.sendMessage(formatMessage("messages.no_permission"));

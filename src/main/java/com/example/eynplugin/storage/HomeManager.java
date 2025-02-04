@@ -7,31 +7,65 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Manages player home data stored in separate YAML files.
+ * Provides methods to set, retrieve, delete, rename, and count homes.
+ */
 public class HomeManager {
     private final File homesDir;
     private final Map<UUID, YamlConfiguration> playerHomes = new HashMap<>();
+    private final Logger logger;
 
-    public HomeManager(File homesDir) {
+    /**
+     * Constructs a new HomeManager.
+     *
+     * @param homesDir the directory where home files will be stored.
+     * @param logger   the Logger to log errors and information.
+     */
+    public HomeManager(final File homesDir, final Logger logger) {
         this.homesDir = homesDir;
-        if (!homesDir.exists()) {
-            homesDir.mkdirs();
+        this.logger = logger;
+        if (!homesDir.exists() && !homesDir.mkdirs()) {
+            logger.warning("Failed to create homes directory: " + homesDir.getAbsolutePath());
         }
     }
 
-    public void setHome(UUID playerUUID, String homeName, Location location) {
-        YamlConfiguration config = getPlayerConfig(playerUUID);
+    /**
+     * Sets a home for a player.
+     *
+     * @param playerUUID the player's UUID.
+     * @param homeName   the name of the home.
+     * @param location   the location to save as the home.
+     */
+    public void setHome(final UUID playerUUID, final String homeName, final Location location) {
+        final YamlConfiguration config = getPlayerConfig(playerUUID);
         config.set(homeName, location);
         savePlayerConfig(playerUUID, config);
     }
 
-    public Location getHome(UUID playerUUID, String homeName) {
-        YamlConfiguration config = getPlayerConfig(playerUUID);
-        return config.getLocation(homeName);
+    /**
+     * Retrieves a player's home location.
+     *
+     * @param playerUUID the player's UUID.
+     * @param homeName   the name of the home.
+     * @return the Location of the home, or null if not found.
+     */
+    public Location getHome(final UUID playerUUID, final String homeName) {
+        return getPlayerConfig(playerUUID).getLocation(homeName);
     }
 
-    public boolean deleteHome(UUID playerUUID, String homeName) {
-        YamlConfiguration config = getPlayerConfig(playerUUID);
+    /**
+     * Deletes a home for a player.
+     *
+     * @param playerUUID the player's UUID.
+     * @param homeName   the name of the home to delete.
+     * @return true if the home existed and was deleted; false otherwise.
+     */
+    public boolean deleteHome(final UUID playerUUID, final String homeName) {
+        final YamlConfiguration config = getPlayerConfig(playerUUID);
         if (!config.contains(homeName)) {
             return false;
         }
@@ -40,31 +74,50 @@ public class HomeManager {
         return true;
     }
 
-    public boolean renameHome(UUID playerUUID, String oldName, String newName) {
-        YamlConfiguration config = getPlayerConfig(playerUUID);
+    /**
+     * Renames an existing home.
+     *
+     * @param playerUUID the player's UUID.
+     * @param oldName    the current home name.
+     * @param newName    the new home name.
+     * @return true if the home existed and was renamed; false otherwise.
+     */
+    public boolean renameHome(final UUID playerUUID, final String oldName, final String newName) {
+        final YamlConfiguration config = getPlayerConfig(playerUUID);
         if (!config.contains(oldName)) {
             return false;
         }
-        Location location = config.getLocation(oldName);
+        final Location location = config.getLocation(oldName);
         config.set(oldName, null);
         config.set(newName, location);
         savePlayerConfig(playerUUID, config);
         return true;
     }
 
-    public int getHomeCount(UUID playerUUID) {
-        YamlConfiguration config = getPlayerConfig(playerUUID);
-        return config.getKeys(false).size();
+    /**
+     * Retrieves the number of homes a player has set.
+     *
+     * @param playerUUID the player's UUID.
+     * @return the number of homes.
+     */
+    public int getHomeCount(final UUID playerUUID) {
+        return getPlayerConfig(playerUUID).getKeys(false).size();
     }
 
-    private YamlConfiguration getPlayerConfig(UUID playerUUID) {
+    /**
+     * Retrieves the YAML configuration for a player.
+     * Loads the configuration from file if not already cached.
+     *
+     * @param playerUUID the player's UUID.
+     * @return the YamlConfiguration for the player.
+     */
+    private YamlConfiguration getPlayerConfig(final UUID playerUUID) {
         if (playerHomes.containsKey(playerUUID)) {
             return playerHomes.get(playerUUID);
         }
 
-        File playerFile = new File(homesDir, playerUUID.toString() + ".yml");
-        YamlConfiguration config;
-        
+        final File playerFile = new File(homesDir, playerUUID.toString() + ".yml");
+        final YamlConfiguration config;
         if (playerFile.exists()) {
             config = YamlConfiguration.loadConfiguration(playerFile);
         } else {
@@ -75,17 +128,27 @@ public class HomeManager {
         return config;
     }
 
-    private void savePlayerConfig(UUID playerUUID, YamlConfiguration config) {
+    /**
+     * Saves a player's YAML configuration to file.
+     *
+     * @param playerUUID the player's UUID.
+     * @param config     the YamlConfiguration to save.
+     */
+    private void savePlayerConfig(final UUID playerUUID, final YamlConfiguration config) {
+        final File playerFile = new File(homesDir, playerUUID.toString() + ".yml");
         try {
-            config.save(new File(homesDir, playerUUID.toString() + ".yml"));
+            config.save(playerFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Failed to save home configuration for " + playerUUID, e);
         }
     }
 
+    /**
+     * Saves all cached player home configurations to file.
+     */
     public void saveAll() {
-        for (Map.Entry<UUID, YamlConfiguration> entry : playerHomes.entrySet()) {
+        for (final Map.Entry<UUID, YamlConfiguration> entry : playerHomes.entrySet()) {
             savePlayerConfig(entry.getKey(), entry.getValue());
         }
     }
-} 
+}

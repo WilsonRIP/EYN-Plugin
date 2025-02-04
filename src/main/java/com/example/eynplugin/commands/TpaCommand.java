@@ -26,13 +26,35 @@ public class TpaCommand extends BaseCommand {
     private static final int COOLDOWN_SECONDS = 30;
     private static final int REQUEST_EXPIRE_SECONDS = 60;
 
+    /**
+     * Constructs a new TpaCommand.
+     *
+     * @param plugin           the main plugin instance.
+     * @param luckPermsHandler the LuckPerms handler.
+     * @param messagesConfig   the configuration file for messages.
+     */
     public TpaCommand(EYNPlugin plugin, LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig) {
         super(luckPermsHandler, messagesConfig);
         this.plugin = plugin;
     }
 
+    /**
+     * Processes the teleport request command.
+     *
+     * Usage:
+     *   /tpa <player>     - Send a teleport request.
+     *   /tpa accept       - Accept a pending teleport request.
+     *   /tpa deny         - Deny a pending teleport request.
+     *
+     * @param sender  the command sender.
+     * @param cmd     the command executed.
+     * @param label   the alias used.
+     * @param args    command arguments.
+     * @return true after processing the command.
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        // Ensure the sender is a player.
         if (!(sender instanceof Player)) {
             sender.sendMessage(Utils.colorize(getMessage("messages.tpa.console_error")));
             return true;
@@ -45,16 +67,30 @@ public class TpaCommand extends BaseCommand {
         }
 
         final String subCommand = args[0].toLowerCase();
-        if (subCommand.equals("accept")) {
-            return handleAccept(player);
-        } else if (subCommand.equals("deny")) {
-            return handleDeny(player);
+        switch (subCommand) {
+            case "accept":
+                return handleAccept(player);
+            case "deny":
+                return handleDeny(player);
+            default:
+                // Process sending a teleport request.
+                return handleSendRequest(player, args[0]);
+        }
+    }
+
+    /**
+     * Handles sending a teleport request from the sender to the target.
+     *
+     * @param player   the requester.
+     * @param targetName the name of the target player.
+     * @return true after processing the request.
+     */
+    private boolean handleSendRequest(final Player player, final String targetName) {
+        if (!checkPermission(player, "eyn.tpa")) {
+            return true;
         }
 
-        // Process sending a teleport request.
-        if (!checkPermission(player, "eyn.tpa")) return true;
-
-        final Player target = Bukkit.getPlayer(args[0]);
+        final Player target = Bukkit.getPlayer(targetName);
         if (target == null) {
             sendMessage(player, "messages.tpa.player_not_found");
             return true;
@@ -85,7 +121,7 @@ public class TpaCommand extends BaseCommand {
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
         target.playSound(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
 
-        // Schedule expiration for the request using a synchronous task.
+        // Schedule request expiration.
         Bukkit.getScheduler().runTaskLater(plugin,
                 () -> expireRequest(target.getUniqueId()),
                 REQUEST_EXPIRE_SECONDS * 20L);
@@ -96,10 +132,12 @@ public class TpaCommand extends BaseCommand {
      * Handles acceptance of a teleport request.
      *
      * @param player the player accepting the request.
-     * @return true if the request is successfully processed.
+     * @return true if the request was processed.
      */
     private boolean handleAccept(final Player player) {
-        if (!checkPermission(player, "eyn.tpaccept")) return true;
+        if (!checkPermission(player, "eyn.tpaccept")) {
+            return true;
+        }
 
         final UUID targetId = player.getUniqueId();
         final UUID requesterId = pendingRequests.remove(targetId);
@@ -129,10 +167,12 @@ public class TpaCommand extends BaseCommand {
      * Handles denial of a teleport request.
      *
      * @param player the player denying the request.
-     * @return true if the request is successfully processed.
+     * @return true if the request was processed.
      */
     private boolean handleDeny(final Player player) {
-        if (!checkPermission(player, "eyn.tpaccept")) return true;
+        if (!checkPermission(player, "eyn.tpaccept")) {
+            return true;
+        }
 
         final UUID targetId = player.getUniqueId();
         final UUID requesterId = pendingRequests.remove(targetId);
@@ -166,14 +206,23 @@ public class TpaCommand extends BaseCommand {
     }
 
     /**
-     * Sends the usage message for the TPA command.
+     * Sends the usage message for the teleport request command.
      *
-     * @param player the player to send the usage message.
+     * @param player the player to receive the usage message.
      */
     private void sendUsage(final Player player) {
         player.sendMessage(Utils.colorize(getMessage("messages.tpa.usage")));
     }
 
+    /**
+     * Provides tab completion suggestions for the TPA command.
+     *
+     * @param sender  the command sender.
+     * @param cmd     the command.
+     * @param alias   the alias used.
+     * @param args    the command arguments.
+     * @return a list of suggestions.
+     */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
         if (args.length == 1) {

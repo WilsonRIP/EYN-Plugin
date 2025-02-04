@@ -1,31 +1,50 @@
 package com.example.eynplugin.commands;
 
+import com.example.eynplugin.craftbukkit.SetExpFix;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import com.example.eynplugin.craftbukkit.SetExpFix;
 
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Command for managing player experience points.
+ * Supports subcommands "give", "take", and "set" for modifying XP.
+ */
 public class XPCommand extends BaseCommand {
     private static final List<String> SUBCOMMANDS = Arrays.asList("give", "take", "set");
     private static final String PERMISSION_BASE = "eyn.xp";
     private static final String PERMISSION_OTHERS = "eyn.xp.others";
 
+    /**
+     * Constructs a new XPCommand.
+     *
+     * @param messagesConfig the configuration file for messages.
+     */
     public XPCommand(FileConfiguration messagesConfig) {
         super(messagesConfig);
     }
 
+    /**
+     * Executes the XP command.
+     * Usage: /xp <give|take|set> <amount> [player]
+     *
+     * @param sender  the command sender.
+     * @param command the command executed.
+     * @param label   the alias used.
+     * @param args    the command arguments.
+     * @return true after processing the command.
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // Verify the sender has the base permission
+        // Verify base permission
         if (!checkPermission(sender, PERMISSION_BASE)) {
             return true;
         }
 
-        // Validate arguments length
+        // Validate argument length.
         if (args.length < 2) {
             sendMessage(sender, "messages.xp.usage");
             return true;
@@ -37,17 +56,16 @@ public class XPCommand extends BaseCommand {
             return true;
         }
 
-        // Validate the amount parameter
+        // Validate that the amount is a positive integer.
         if (!isPositiveInteger(args[1])) {
             sendMessage(sender, "messages.xp.invalid_amount");
             return true;
         }
         final int amount = Integer.parseInt(args[1]);
 
-        // Determine the target player
+        // Determine the target player: if provided, target must be online.
         final Player target;
         if (args.length > 2) {
-            // Must have permission to modify others' XP
             if (!checkPermission(sender, PERMISSION_OTHERS)) {
                 return true;
             }
@@ -62,18 +80,18 @@ public class XPCommand extends BaseCommand {
             target = (Player) sender;
         }
 
-        // Process the XP change based on the action
+        // Process the XP change.
         handleXPChange(sender, target, action, amount);
         return true;
     }
 
     /**
-     * Handles the XP change logic and sends appropriate messages to involved parties.
+     * Handles the XP change logic based on the specified action.
      *
-     * @param sender The command sender.
-     * @param target The target player whose XP is being modified.
-     * @param action The XP action: give, take, or set.
-     * @param amount The amount of XP to process.
+     * @param sender the command sender.
+     * @param target the target player whose XP will be modified.
+     * @param action the XP action ("give", "take", or "set").
+     * @param amount the amount of XP to process.
      */
     private void handleXPChange(CommandSender sender, Player target, String action, int amount) {
         final int currentExp = SetExpFix.getTotalExperience(target);
@@ -90,13 +108,14 @@ public class XPCommand extends BaseCommand {
                 newExp = Math.max(0, amount);
                 break;
             default:
+                // Should never reach here since we already validate action.
                 return;
         }
 
         SetExpFix.setTotalExperience(target, newExp);
 
-        // Message keys are constructed based on action type and target (self or other)
-        if (target == sender) {
+        // Construct the message keys based on action and whether the target is the sender.
+        if (target.equals(sender)) {
             sendMessage(sender, "messages.xp." + action + ".self",
                     "%amount%", String.valueOf(amount),
                     "%total%", String.valueOf(newExp));
@@ -111,6 +130,15 @@ public class XPCommand extends BaseCommand {
         }
     }
 
+    /**
+     * Provides tab completion for the XP command.
+     *
+     * @param sender  the command sender.
+     * @param command the command.
+     * @param alias   the alias used.
+     * @param args    the current command arguments.
+     * @return a list of matching suggestions.
+     */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission(PERMISSION_BASE)) {

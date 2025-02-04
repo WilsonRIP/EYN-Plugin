@@ -12,61 +12,75 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * BalanceCommand provides functionality to check a player's balance.
+ * Usage:
+ *   /balance            - Shows the sender's own balance.
+ *   /balance <player>   - Shows the specified player's balance (requires additional permission).
+ */
 public class BalanceCommand extends BaseCommand {
     private final Economy economy;
 
-    public BalanceCommand(LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig, Economy economy) {
+    /**
+     * Constructs a new BalanceCommand.
+     *
+     * @param luckPermsHandler the LuckPerms handler instance.
+     * @param messagesConfig   the configuration file containing messages.
+     * @param economy          the Vault economy instance.
+     */
+    public BalanceCommand(final LuckPermsHandler luckPermsHandler, final FileConfiguration messagesConfig, final Economy economy) {
         super(luckPermsHandler, messagesConfig);
         this.economy = economy;
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+        // If sender is not a player, display an error.
         if (!(sender instanceof Player)) {
             sender.sendMessage(Utils.colorize(getMessage("messages.player_only_command")));
             return true;
         }
+        final Player player = (Player) sender;
 
-        Player player = (Player) sender;
+        // Check permission to view balance.
         if (!Utils.checkPermission(player, "eyn.balance")) {
             player.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
             return true;
         }
 
-        // Check own balance
+        // Show sender's own balance if no target is specified.
         if (args.length == 0) {
-            double balance = economy.getBalance(player);
+            final double balance = economy.getBalance(player);
             player.sendMessage(Utils.colorize(getMessage("messages.balance.self")
                     .replace("%amount%", String.format("%.2f", balance))));
             return true;
         }
 
-        // Check other player's balance
+        // Check permission to view others' balances.
         if (!Utils.checkPermission(player, "eyn.balance.others")) {
             player.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
             return true;
         }
 
-        Player target = Bukkit.getPlayer(args[0]);
+        final Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
             player.sendMessage(Utils.colorize(getMessage("messages.balance.player_not_found")
                     .replace("%player%", args[0])));
             return true;
         }
 
-        double balance = economy.getBalance(target);
+        final double balance = economy.getBalance(target);
         player.sendMessage(Utils.colorize(getMessage("messages.balance.other")
                 .replace("%player%", target.getName())
                 .replace("%amount%", String.format("%.2f", balance))));
-
         return true;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(final CommandSender sender, final Command command, final String alias, final String[] args) {
         if (args.length == 1 && sender.hasPermission("eyn.balance.others")) {
             return filterStartingWith(getOnlinePlayerNames(), args[0]);
         }
         return new ArrayList<>();
     }
-} 
+}

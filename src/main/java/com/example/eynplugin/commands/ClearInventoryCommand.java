@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Collections;
 import com.example.eynplugin.Utils;
 import java.util.Arrays;
+import org.bukkit.inventory.PlayerInventory;
 
 public class ClearInventoryCommand extends BaseCommand {
 
@@ -26,7 +27,7 @@ public class ClearInventoryCommand extends BaseCommand {
         }
 
         Player target;
-        
+
         if (args.length == 0) {
             // Clear sender's inventory
             if (!(sender instanceof Player)) {
@@ -39,40 +40,43 @@ public class ClearInventoryCommand extends BaseCommand {
             if (!checkPermission(sender, "eyn.clearinventory.others")) {
                 return true;
             }
-            
+
             target = Bukkit.getPlayer(args[0]);
             if (target == null) {
-                sender.sendMessage(Utils.colorize(getMessage("messages.moderation.player_not_found")));
+                sender.sendMessage(Utils.colorize(getMessage("messages.moderation.player_not_found").replace("%player%", args[0])));
                 return true;
             }
         }
 
         // Check if inventory is already empty
-        if (target.getInventory().isEmpty() && 
-            Arrays.stream(target.getInventory().getArmorContents()).allMatch(item -> item == null)) {
-            sender.sendMessage(Utils.colorize(getMessage("messages.clearinventory.no_items")));
+        PlayerInventory inv = target.getInventory();
+        if (isInventoryEmpty(inv)) {
+            if (target.equals(sender)) {
+                sender.sendMessage(Utils.colorize(getMessage("messages.clearinventory.no_items")));
+            } else {
+                sender.sendMessage(Utils.colorize(getMessage("messages.clearinventory.target_no_items").replace("%player%", target.getName())));
+            }
+            
             return true;
         }
 
         // Clear inventory and armor
-        target.getInventory().clear();
-        target.getInventory().setArmorContents(new ItemStack[4]);
-        target.updateInventory();
+        clearInventory(inv);
 
         // Send messages
-        if (target == sender) {
+        if (target.equals(sender)) {
             sender.sendMessage(Utils.colorize(getMessage("messages.clearinventory.self_cleared")));
         } else {
             sender.sendMessage(Utils.colorize(
-                getMessage("messages.clearinventory.other_cleared")
-                    .replace("%player%", target.getName())
+                    getMessage("messages.clearinventory.other_cleared")
+                            .replace("%player%", target.getName())
             ));
             target.sendMessage(Utils.colorize(
-                getMessage("messages.clearinventory.cleared_by_staff")
-                    .replace("%staff%", sender.getName())
+                    getMessage("messages.clearinventory.cleared_by_staff")
+                            .replace("%staff%", sender.getName())
             ));
         }
-        
+
         return true;
     }
 
@@ -83,4 +87,25 @@ public class ClearInventoryCommand extends BaseCommand {
         }
         return Collections.emptyList();
     }
-} 
+
+    /**
+     * Checks if a player's inventory (including armor) is empty.
+     *
+     * @param inv The PlayerInventory to check.
+     * @return True if the inventory is empty, false otherwise.
+     */
+    private boolean isInventoryEmpty(PlayerInventory inv) {
+        return inv.isEmpty() && Arrays.stream(inv.getArmorContents()).allMatch(item -> item == null || item.getType().isAir());
+    }
+
+    /**
+     * Clears a player's inventory, including armor.
+     *
+     * @param inv The PlayerInventory to clear.
+     */
+    private void clearInventory(PlayerInventory inv) {
+        inv.clear();
+        inv.setArmorContents(new ItemStack[4]);
+        inv.setItemInOffHand(null);
+    }
+}

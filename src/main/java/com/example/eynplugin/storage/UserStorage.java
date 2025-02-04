@@ -11,8 +11,7 @@ import java.util.logging.Logger;
 /**
  * Handles storage and retrieval of user data in a YAML file.
  */
-public class UserStorage {
-
+public final class UserStorage {
     private final File file;
     private final FileConfiguration config;
     private final Logger logger;
@@ -22,7 +21,7 @@ public class UserStorage {
      *
      * @param dataFolder the folder where the storage file is located.
      */
-    public UserStorage(File dataFolder) {
+    public UserStorage(final File dataFolder) {
         // Initialize logger; replace with your plugin's logger if available.
         this.logger = Logger.getLogger("EYNPlugin");
 
@@ -32,17 +31,17 @@ public class UserStorage {
         }
 
         // Initialize the user storage file.
-        file = new File(dataFolder, "users.yml");
-        if (!file.exists()) {
+        this.file = new File(dataFolder, "users.yml");
+        if (!this.file.exists()) {
             try {
-                if (file.createNewFile()) {
+                if (this.file.createNewFile()) {
                     logger.info("Created new user storage file: " + file.getName());
                 }
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Could not create user storage file", e);
             }
         }
-        config = YamlConfiguration.loadConfiguration(file);
+        this.config = YamlConfiguration.loadConfiguration(file);
     }
 
     /**
@@ -51,7 +50,7 @@ public class UserStorage {
      * @param uuid the unique identifier of the user.
      * @param data the data to save.
      */
-    public void saveUser(String uuid, String data) {
+    public void saveUser(final String uuid, final String data) {
         config.set(uuid, data);
         saveConfig();
     }
@@ -62,7 +61,7 @@ public class UserStorage {
      * @param uuid the unique identifier of the user.
      * @return the user data as a String, or null if not found.
      */
-    public String getUser(String uuid) {
+    public String getUser(final String uuid) {
         return config.getString(uuid);
     }
 

@@ -13,19 +13,33 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Command handler for the online players list command.
- * Shows a list of online players with optional visibility of vanished players
- * based on permissions.
+ * Command handler for the /online command.
+ * Displays a list of online players with optional visibility of vanished players based on permissions.
  */
 public class OnlinePlayersCommand extends BaseCommand {
     private static final String PERMISSION_ONLINE = "eyn.online";
     private static final String PERMISSION_SEE_VANISHED = "eyn.vanish.see";
     private static final String VANISHED_METADATA_KEY = "vanished";
 
+    /**
+     * Constructs a new OnlinePlayersCommand.
+     *
+     * @param luckPermsHandler the LuckPerms handler instance.
+     * @param messagesConfig   the configuration file for messages.
+     */
     public OnlinePlayersCommand(LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig) {
         super(luckPermsHandler, messagesConfig);
     }
 
+    /**
+     * Processes the /online command.
+     *
+     * @param sender  the command sender.
+     * @param command the executed command.
+     * @param label   the alias used.
+     * @param args    the command arguments.
+     * @return true after processing the command.
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!hasPermission(sender, PERMISSION_ONLINE)) {
@@ -33,7 +47,7 @@ public class OnlinePlayersCommand extends BaseCommand {
             return true;
         }
 
-        List<Player> visiblePlayers = getVisiblePlayers(sender);
+        final List<Player> visiblePlayers = getVisiblePlayers(sender);
         if (visiblePlayers.isEmpty()) {
             sendMessage(sender, "messages.online.no_players");
             return true;
@@ -47,26 +61,23 @@ public class OnlinePlayersCommand extends BaseCommand {
      * Checks silently whether the sender has the given permission.
      * Non-player senders (e.g. console) are assumed to have all permissions.
      *
-     * @param sender     the command sender
-     * @param permission the permission to check
-     * @return true if the sender has the permission, false otherwise
+     * @param sender     the command sender.
+     * @param permission the permission to check.
+     * @return true if the sender has the permission, false otherwise.
      */
     protected boolean hasPermission(CommandSender sender, String permission) {
-        if (sender instanceof Player) {
-            return ((Player) sender).hasPermission(permission);
-        }
-        return true; // Console and non-player senders have permission by default.
+        return (sender instanceof Player) ? ((Player) sender).hasPermission(permission) : true;
     }
 
     /**
      * Returns the list of players visible to the sender.
-     * Players who are vanished are only visible if the sender has the appropriate permission.
+     * Vanished players are only included if the sender has permission to see them.
      *
-     * @param sender the command sender
-     * @return list of visible players
+     * @param sender the command sender.
+     * @return list of visible players.
      */
     public List<Player> getVisiblePlayers(CommandSender sender) {
-        boolean canSeeVanished = sender instanceof Player &&
+        final boolean canSeeVanished = (sender instanceof Player) &&
                 ((Player) sender).hasPermission(PERMISSION_SEE_VANISHED);
 
         return Bukkit.getOnlinePlayers().stream()
@@ -77,25 +88,25 @@ public class OnlinePlayersCommand extends BaseCommand {
     /**
      * Checks if a given player is vanished.
      *
-     * @param player the player to check
-     * @return true if vanished; false otherwise
+     * @param player the player to check.
+     * @return true if the player is vanished; false otherwise.
      */
     public boolean isVanished(Player player) {
-        List<MetadataValue> meta = player.getMetadata(VANISHED_METADATA_KEY);
+        final List<MetadataValue> meta = player.getMetadata(VANISHED_METADATA_KEY);
         return meta != null && !meta.isEmpty() && meta.get(0).asBoolean();
     }
 
     /**
      * Formats and displays the online player list to the sender.
      *
-     * @param sender  the command sender
-     * @param players the list of players to display
+     * @param sender  the command sender.
+     * @param players the list of players to display.
      */
     public void displayPlayerList(CommandSender sender, List<Player> players) {
         sendMessage(sender, "messages.online.header", "%count%", String.valueOf(players.size()));
 
-        String separator = ChatColor.translateAlternateColorCodes('&', "&a, ");
-        String playerList = players.stream()
+        final String separator = ChatColor.translateAlternateColorCodes('&', "&a, ");
+        final String playerList = players.stream()
                 .map(this::formatPlayerName)
                 .collect(Collectors.joining(separator));
 
@@ -104,48 +115,39 @@ public class OnlinePlayersCommand extends BaseCommand {
     }
 
     /**
-     * Formats a player's name with appropriate color coding and vanish status.
+     * Formats a player's name with appropriate color coding based on permissions.
+     * Appends vanish status if the player is vanished.
      *
-     * @param player the player to format
-     * @return the formatted and color-translated player name
+     * @param player the player to format.
+     * @return the formatted player name.
      */
     public String formatPlayerName(Player player) {
-        StringBuilder name = new StringBuilder();
-
+        final String colorPrefix;
         if (player.isOp()) {
-            name.append("&c");
+            colorPrefix = "&c";
         } else if (player.hasPermission("eyn.staff")) {
-            name.append("&b");
+            colorPrefix = "&b";
         } else {
-            name.append("&a");
+            colorPrefix = "&a";
         }
 
-        name.append(player.getName());
+        final StringBuilder nameBuilder = new StringBuilder();
+        nameBuilder.append(colorPrefix).append(player.getName());
 
         if (isVanished(player)) {
-            name.append("&7(V)&a");
+            nameBuilder.append("&7(V)&a");
         }
 
-        return ChatColor.translateAlternateColorCodes('&', name.toString());
+        return ChatColor.translateAlternateColorCodes('&', nameBuilder.toString());
     }
 
     /**
      * Sends a colored message to the sender using the messages configuration.
+     * Performs placeholder replacement using key-value pairs.
      *
-     * @param sender     the command sender
-     * @param messageKey the key to the message in the configuration
-     */
-    protected void sendMessage(CommandSender sender, String messageKey) {
-        sendMessage(sender, messageKey, new String[0]);
-    }
-
-    /**
-     * Sends a colored message to the sender using the messages configuration,
-     * performing placeholder replacement. Placeholders should be provided in pairs.
-     *
-     * @param sender       the command sender
-     * @param messageKey   the key to the message in the configuration
-     * @param placeholders key-value pairs for placeholder replacement
+     * @param sender       the command sender.
+     * @param messageKey   the key to the message in the configuration.
+     * @param placeholders key-value pairs for placeholder replacement.
      */
     protected void sendMessage(CommandSender sender, String messageKey, String... placeholders) {
         String message = getMessage(messageKey);

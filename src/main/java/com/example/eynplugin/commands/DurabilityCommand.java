@@ -9,51 +9,75 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.ChatColor;
 
+/**
+ * Command to adjust the durability (damage value) of the item in the player's main hand.
+ */
 public class DurabilityCommand extends BaseCommand {
 
     public DurabilityCommand(LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig) {
         super(luckPermsHandler, messagesConfig);
     }
 
+    /**
+     * Executes the durability command.
+     * <p>
+     * Usage: /<command> <durability>
+     * </p>
+     *
+     * @param sender  The command sender.
+     * @param command The command being executed.
+     * @param label   The alias used for this command.
+     * @param args    The command arguments.
+     * @return true if the command was processed.
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Ensure only players can run this command.
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("player_only_command")));
+            sender.sendMessage(Utils.colorize(getMessage("player_only_command")));
             return true;
         }
 
-        Player player = (Player) sender;
+        final Player player = (Player) sender;
         if (!Utils.checkPermission(player, "eyn.durability")) {
             player.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
             return true;
         }
 
+        // Validate that exactly one argument is provided.
         if (args.length != 1) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("durability.invalid")));
+            player.sendMessage(Utils.colorize(getMessage("durability.invalid")));
             return true;
         }
 
-        ItemStack item = player.getInventory().getItemInMainHand();
+        final ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || !item.getType().isItem()) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("durability.no_item")));
+            player.sendMessage(Utils.colorize(getMessage("durability.no_item")));
             return true;
         }
 
         try {
-            int durability = Integer.parseInt(args[0]);
-            ItemMeta meta = item.getItemMeta();
+            final int damageValue = Integer.parseInt(args[0]);
+            if (damageValue < 0) {
+                player.sendMessage(Utils.colorize(getMessage("durability.invalid")));
+                return true;
+            }
+
+            final ItemMeta meta = item.getItemMeta();
             if (meta instanceof Damageable) {
-                ((Damageable) meta).setDamage(durability);
+                ((Damageable) meta).setDamage(damageValue);
                 item.setItemMeta(meta);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("durability.changed").replace("%durability%", String.valueOf(durability))));
+                player.sendMessage(Utils.colorize(
+                        getMessage("durability.changed").replace("%durability%", String.valueOf(damageValue))
+                ));
             } else {
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("durability.invalid")));
+                player.sendMessage(Utils.colorize(getMessage("durability.invalid")));
             }
         } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', getMessage("durability.invalid")));
+            player.sendMessage(Utils.colorize(getMessage("durability.invalid")));
         }
+
         return true;
     }
-} 
+}

@@ -75,8 +75,39 @@ public class MsgCommand extends BaseCommand {
         receiver.sendMessage(formattedReceiver);
     }
 
+    /**
+     * Retrieves and formats a message from the configuration, applying color codes.
+     *
+     * @param key the configuration key for the message.
+     * @return the formatted message string.
+     */
+    @Override
+    protected String formatMessage(String key) {
+        return org.bukkit.ChatColor.translateAlternateColorCodes('&', 
+            messagesConfig.getString(key, "&cMessage not found: " + key));
+    }
+
+    /**
+     * Sends a colored message to the given command sender, performing placeholder replacement.
+     * Placeholders should be provided in key-value pairs.
+     *
+     * @param sender       the recipient.
+     * @param messageKey   the configuration key for the message.
+     * @param placeholders placeholder key-value pairs.
+     */
+    @Override
+    protected void sendMessage(CommandSender sender, String messageKey, String... placeholders) {
+        String message = formatMessage(messageKey);
+        if (placeholders != null && placeholders.length % 2 == 0) {
+            for (int i = 0; i < placeholders.length; i += 2) {
+                message = message.replace(placeholders[i], placeholders[i + 1]);
+            }
+        }
+        sender.sendMessage(message);
+    }
+
     public static Player getLastMessaged(Player player) {
         UUID last = lastMessaged.get(player.getUniqueId());
         return last != null ? Bukkit.getPlayer(last) : null;
     }
-} 
+}

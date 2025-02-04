@@ -2,17 +2,16 @@ package com.example.eynplugin.commands;
 
 import com.example.eynplugin.EYNPlugin;
 import com.example.eynplugin.api.LuckPermsHandler;
-import net.md_5.bungee.api.ChatColor; // Bungee chat colors for TextComponent
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.Location;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.Location;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,14 +19,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Handles warp-related commands:
  * - /warp: Teleport to a warp.
  * - /setwarp: Set a new warp.
  * - /delwarp: Delete an existing warp.
- * - /warplist: List available warps (with clickable teleport).
+ * - /warplist: List available warps with clickable teleport links.
  * - /renamewarp: Rename a warp.
  */
 public class WarpCommand extends BaseCommand {
@@ -38,12 +36,12 @@ public class WarpCommand extends BaseCommand {
     /**
      * Constructs a new WarpCommand instance.
      *
-     * @param luckPermsHandler the LuckPerms handler
-     * @param messagesConfig   the messages configuration
-     * @param dataFolder       the plugin's data folder
-     * @param plugin           the main plugin instance (for logging)
+     * @param luckPermsHandler the LuckPerms handler.
+     * @param messagesConfig   the messages configuration.
+     * @param dataFolder       the plugin's data folder.
+     * @param plugin           the main plugin instance (for logging, scheduling, etc.).
      */
-    public WarpCommand(LuckPermsHandler luckPermsHandler, FileConfiguration messagesConfig, File dataFolder, EYNPlugin plugin) {
+    public WarpCommand(final LuckPermsHandler luckPermsHandler, final FileConfiguration messagesConfig, final File dataFolder, final EYNPlugin plugin) {
         super(luckPermsHandler, messagesConfig);
         this.plugin = plugin;
         this.warpsFile = new File(dataFolder, "warps.yml");
@@ -78,18 +76,19 @@ public class WarpCommand extends BaseCommand {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(color(getMessage("messages.player_only_command")));
             return true;
         }
         final Player player = (Player) sender;
+
+        // Check for base permission.
         if (!checkPermission(player, "eyn.warp")) {
             player.sendMessage(color(getMessage("messages.no_permission")));
             return true;
         }
 
-        // Use command.getName() for consistent handling of aliases.
         final String cmdName = command.getName().toLowerCase();
         switch (cmdName) {
             case "warp":
@@ -128,26 +127,6 @@ public class WarpCommand extends BaseCommand {
                 break;
         }
         return true;
-    }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (!(sender instanceof Player)) {
-            return Collections.emptyList();
-        }
-        final Player player = (Player) sender;
-        if (!checkPermission(player, "eyn.warp")) {
-            return Collections.emptyList();
-        }
-        final String cmdName = command.getName().toLowerCase();
-        if ((cmdName.equals("warp") || cmdName.equals("delwarp") || cmdName.equals("renamewarp")) && args.length == 1) {
-            final String partial = args[0].toLowerCase();
-            final Set<String> keys = warpsConfig.getKeys(false);
-            return keys.stream()
-                    .filter(warp -> warp.toLowerCase().startsWith(partial))
-                    .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
     }
 
     /**
@@ -215,19 +194,21 @@ public class WarpCommand extends BaseCommand {
         }
         player.sendMessage(color(getMessage("messages.warp.list_header")));
 
-        final TextComponent message = new TextComponent();
+        // Build a clickable list using Bungee TextComponent.
+        final net.md_5.bungee.api.chat.TextComponent message = new net.md_5.bungee.api.chat.TextComponent();
         final List<String> sortedWarps = new ArrayList<>(warps);
         Collections.sort(sortedWarps);
         boolean first = true;
         for (final String warp : sortedWarps) {
             if (!first) {
-                message.addExtra(new TextComponent(", "));
+                message.addExtra(new net.md_5.bungee.api.chat.TextComponent(", "));
             }
             first = false;
-            final TextComponent warpComponent = new TextComponent(warp);
+            final net.md_5.bungee.api.chat.TextComponent warpComponent = new net.md_5.bungee.api.chat.TextComponent(warp);
             warpComponent.setColor(net.md_5.bungee.api.ChatColor.AQUA);
             warpComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/warp " + warp));
-            warpComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to teleport to " + warp)));
+            warpComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    new Text[] { new Text("Click to teleport to " + warp) }));
             message.addExtra(warpComponent);
         }
         player.spigot().sendMessage(message);
@@ -259,7 +240,7 @@ public class WarpCommand extends BaseCommand {
     }
 
     /**
-     * Translates color codes in a message.
+     * Applies alternate color codes to a message.
      *
      * @param message the message to colorize.
      * @return the colorized message.

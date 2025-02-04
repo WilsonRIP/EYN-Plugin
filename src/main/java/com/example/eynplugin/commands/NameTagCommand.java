@@ -7,13 +7,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.Plugin;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.bukkit.plugin.Plugin;
 
+/**
+ * Command to toggle player name tag visibility.
+ */
 public class NameTagCommand extends BaseCommand {
     private final Set<UUID> hiddenNameTags = new HashSet<>();
     private final Plugin plugin;
@@ -23,6 +27,15 @@ public class NameTagCommand extends BaseCommand {
         this.plugin = plugin;
     }
 
+    /**
+     * Executes the name tag toggle command.
+     *
+     * @param sender The command sender.
+     * @param cmd    The command.
+     * @param label  The command label.
+     * @param args   The command arguments.
+     * @return true if the command executed successfully.
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
@@ -30,7 +43,7 @@ public class NameTagCommand extends BaseCommand {
             return true;
         }
 
-        Player player = (Player) sender;
+        final Player player = (Player) sender;
         Player target = player;
 
         if (args.length > 0) {
@@ -53,33 +66,56 @@ public class NameTagCommand extends BaseCommand {
         return true;
     }
 
-    private void toggleNameTagVisibility(Player target) {
+    /**
+     * Toggles the name tag visibility for the specified player.
+     *
+     * @param target The player whose name tag visibility is to be toggled.
+     */
+    private void toggleNameTagVisibility(final Player target) {
         if (hiddenNameTags.contains(target.getUniqueId())) {
+            // Currently hidden – make visible.
             hiddenNameTags.remove(target.getUniqueId());
-            updateNameTagVisibility(target, true);
-        } else {
-            hiddenNameTags.add(target.getUniqueId());
             updateNameTagVisibility(target, false);
+        } else {
+            // Currently visible – hide the name tag.
+            hiddenNameTags.add(target.getUniqueId());
+            updateNameTagVisibility(target, true);
         }
     }
 
-    private void updateNameTagVisibility(Player target, boolean visible) {
-        target.setMetadata("nametag", new FixedMetadataValue(plugin, !visible));
-        
-        // Update visibility for all online players
+    /**
+     * Updates the name tag visibility for the target player and refreshes the view for all online players.
+     *
+     * @param target The player whose name tag is being updated.
+     * @param hidden True if the name tag should be hidden; false if it should be visible.
+     */
+    private void updateNameTagVisibility(final Player target, final boolean hidden) {
+        // Store the hidden state in metadata.
+        target.setMetadata("nametag", new FixedMetadataValue(plugin, hidden));
+
+        // Update the visibility for all online players.
         Bukkit.getOnlinePlayers().forEach(p -> {
-            if (p.canSee(target) && p != target) {
-                p.hidePlayer(plugin, target);
-                p.showPlayer(plugin, target);
+            if (!p.equals(target)) {
+                if (hidden) {
+                    p.hidePlayer(plugin, target);
+                } else {
+                    p.showPlayer(plugin, target);
+                }
             }
         });
     }
 
-    private void sendToggleMessage(CommandSender sender, Player target) {
-        boolean isHidden = hiddenNameTags.contains(target.getUniqueId());
-        String messageKey = isHidden ? "messages.nametag.hidden" : "messages.nametag.visible";
-        
-        if (sender == target) {
+    /**
+     * Sends the appropriate toggle message to the command sender and target player.
+     *
+     * @param sender The command sender.
+     * @param target The player whose name tag was toggled.
+     */
+    private void sendToggleMessage(final CommandSender sender, final Player target) {
+        final boolean isHidden = hiddenNameTags.contains(target.getUniqueId());
+        final String messageKey = isHidden ? "messages.nametag.hidden" : "messages.nametag.visible";
+
+        if (sender.equals(target)) {
             sendMessage(target, messageKey + "_self");
         } else {
             sendMessage(sender, messageKey + "_other", "%player%", target.getName());
@@ -87,6 +123,15 @@ public class NameTagCommand extends BaseCommand {
         }
     }
 
+    /**
+     * Provides tab completion for the command.
+     *
+     * @param sender The command sender.
+     * @param cmd    The command.
+     * @param alias  The alias used.
+     * @param args   The command arguments.
+     * @return A list of suggested completions.
+     */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
         if (args.length == 1 && checkPermission(sender, "eyn.nametag.others")) {
@@ -94,4 +139,4 @@ public class NameTagCommand extends BaseCommand {
         }
         return Collections.emptyList();
     }
-} 
+}

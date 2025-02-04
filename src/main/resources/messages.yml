@@ -3,35 +3,40 @@
 messages:
   welcome: "&a&lWelcome to the server!"
   goodbye: "&c&lGoodbye! &rSee you next time!"
-  no_permission: "&c&lYou don't have permission to use this command!"
+  no_permission: "&c&lYou do not have permission to use this command!"
   player_only_command: "&e&lThis command can only be used by players!"
 
   error:
     generic: "&c&lAn error occurred!"
     player_not_found: "&c&lPlayer not found!"
 
+  # Fly commands
   fly:
     enabled: "&b&lFlight mode enabled!"
     disabled: "&c&lFlight mode disabled!"
-    toggle_other: "&a&lToggled flight mode for &r%player%"
+    toggle_other: "&a&lFlight mode toggled for &r%player%!"
 
+  # Back commands
   back:
     success: "&a&lTeleported to your previous location!"
     no_location: "&c&lNo previous location found!"
 
+  # God mode commands
   god:
     enabled: "&6&lGod mode enabled!"
     disabled: "&c&lGod mode disabled!"
-    toggle_other: "&a&lToggled god mode for &r%player%"
+    toggle_other: "&a&lGod mode toggled for &r%player%!"
 
+  # Gamemode commands
   gamemode:
-    creative: "&d&lGame mode changed to creative."
-    survival: "&a&lGame mode changed to survival."
-    spectator: "&7&lGame mode changed to spectator."
-    adventure: "&e&lGame mode changed to adventure."
+    creative: "&d&lGame mode set to creative."
+    survival: "&a&lGame mode set to survival."
+    spectator: "&7&lGame mode set to spectator."
+    adventure: "&e&lGame mode set to adventure."
     invalid: "&c&lInvalid game mode!"
-    changed_other: "&a&lChanged %player%'s gamemode to %gamemode%"
+    changed_other: "&a&lChanged %player%'s gamemode to %gamemode%."
 
+  # Weather commands
   weather:
     rain: "&9&lWeather changed to rain."
     thunder: "&e&lWeather changed to thunder."
@@ -39,20 +44,22 @@ messages:
     sunny: "&6&lWeather changed to sunny."
     invalid: "&c&lInvalid weather type!"
 
+  # Durability commands
   durability:
-    changed: "&a&lDurability changed to &r%durability%&a."
-    no_item: "&c&lYou are not holding an item!"
+    changed: "&a&lDurability set to &r%durability%&a."
+    no_item: "&c&lNo item held!"
     invalid: "&c&lInvalid durability value!"
 
+  # Warp commands
   warp:
     usage: "&cUsage: /warp <name>"
     set_usage: "&cUsage: /setwarp <name>"
     del_usage: "&cUsage: /delwarp <name>"
     rename_usage: "&cUsage: /renamewarp <oldname> <newname>"
     teleported: "&a&lTeleported to warp &r%warp%&a!"
-    set: "&a&lWarp &r%warp%&a has been set!"
+    set: "&a&lWarp &r%warp%&a set successfully!"
     deleted: "&c&lWarp &r%warp%&c has been deleted!"
-    renamed: "&a&lWarp &r%old%&a has been renamed to &r%new%&a!"
+    renamed: "&a&lWarp &r%old%&a renamed to &r%new%&a!"
     list: "&e&lAvailable warps: &r%warps%"
     not_found: "&c&lWarp &r%warp%&c does not exist!"
     already_exists: "&c&lWarp &r%warp%&c already exists!"
@@ -60,17 +67,20 @@ messages:
     list_header: "&e&lAvailable Warps:"
     no_warps: "&c&lNo warps have been set yet!"
 
+  # Discord messages
   discord:
-    message: "&9&lJoin our Discord! &r&nClick here to join!&r"
+    message: "&9&lJoin our Discord! &r&nClick here to join!"
     hover: "&7Click to join our Discord server!"
 
+  # Kill commands
   kill:
     killed_player: "&c&lYou killed &r%target%&c!"
     killed_by: "&c&lYou were killed by &r%player%&c!"
-    killed_all: "&c&lYou killed all players!"
+    killed_all: "&c&lAll players have been killed!"
     no_target: "&c&lTarget player not found!"
     self_kill: "&c&lYou killed yourself!"
 
+  # Vanish commands
   vanish:
     enabled: "&b&lVanish mode enabled! &7You are now invisible."
     disabled: "&c&lVanish mode disabled! &7You are now visible."
@@ -84,11 +94,13 @@ messages:
     enabled_actionbar: "&7&o[Vanish Mode: &a&oEnabled&7&o]"
     disabled_actionbar: "&7&o[Vanish Mode: &c&oDisabled&7&o]"
 
+  # Playtime commands
   playtime:
     self: "&a&lYour playtime: &r%hours% hours, %minutes% minutes"
     other: "&a&l%player%'s playtime: &r%hours% hours, %minutes% minutes"
     no_data: "&c&lNo playtime data found for %player%"
 
+  # Player info commands
   playerinfo:
     header: "&6&l=== Player Info: &r%player% &6&l==="
     gamemode: "&e&lGamemode: &r%gamemode%"
@@ -101,22 +113,25 @@ messages:
     is_vanished: "&7&lVanished: &r%vanished%"
     is_op: "&4&lOperator: &r%op%"
     footer: "&6&l================================="
-    blur_enabled: "&7&lBlur mode enabled - sensitive information will be hidden"
-    blur_disabled: "&7&lBlur mode disabled - sensitive information will be shown"
+    blur_enabled: "&7&lBlur mode enabled - sensitive info hidden"
+    blur_disabled: "&7&lBlur mode disabled - sensitive info shown"
 
+  # Online players list
   online:
     header: "&6&l=== Online Players (%count%) ==="
     list: "&a%players%"
     no_players: "&c&lNo players online!"
     footer: "&6&l========================="
 
+  # Clear chat commands
   clearchat:
     cleared: "&a&lChat has been cleared by &r%player%"
     cooldown: "&c&lPlease wait %seconds% seconds before using this command again!"
 
+  # Moderation commands
   moderation:
     player_not_found: "&cPlayer not found!"
-    self_target: "&c&lYou cannot use moderation commands on yourself!"
+    self_target: "&c&lYou cannot moderate yourself!"
     target_is_op: "&c&lYou cannot moderate server operators!"
     insufficient_rank: "&c&lYou cannot moderate players with higher or equal rank!"
 
@@ -127,7 +142,7 @@ messages:
       success: "&aTeleported to %target%"
 
     tpall:
-      success: "&aTeleported all online players to you"
+      success: "&aTeleported all players to you"
 
     tphere:
       success: "&aTeleported %target% to your location"
@@ -135,10 +150,10 @@ messages:
     freeze:
       usage: "&cUsage: /freeze <player>"
       broadcast: "&c%player% has frozen %target%"
-      target_message: "&c&lYou have been frozen! You cannot move."
+      target_message: "&c&lYou have been frozen! Movement is disabled."
       already_frozen: "&cThis player is already frozen!"
       unfreeze_broadcast: "&a%player% has unfrozen %target%"
-      unfreeze_target: "&a&lYou have been unfrozen! You can move again."
+      unfreeze_target: "&a&lYou have been unfrozen! You may move now."
       not_frozen: "&cThis player is not frozen!"
 
     mute:
@@ -149,7 +164,7 @@ messages:
     unmute:
       usage: "&cUsage: /unmute <player>"
       broadcast: "&a%player% has unmuted %target%"
-      target_message: "&aYou have been unmuted"
+      target_message: "&aYou have been unmuted."
 
     ban:
       usage: "&cUsage: /ban <player> <reason>"
@@ -200,6 +215,7 @@ messages:
       target_message: "&cYou have been set on fire for %duration% seconds!"
       sender_message: "&aSet %target% on fire for %duration% seconds!"
 
+  # Home commands
   home:
     usage: "&cUsage: /home <name> or /home <sethome|delhome|renamehome> [args]"
     sethome:
@@ -217,6 +233,7 @@ messages:
     not_found: "&cHome not found!"
     exists: "&cA home with that name already exists!"
 
+  # XP commands
   xp:
     usage: "&cUsage: /xp <give|take|set> <amount> [player]"
     invalid_amount: "&cInvalid amount! Please enter a positive number."
@@ -233,21 +250,25 @@ messages:
       other: "&aSet %player%'s XP to %amount%"
       target: "&aYour XP was set to %amount%"
 
+  # World info commands
   worldinfo:
     header: "&6&lWorld Information: &r%world%"
     time: "&eTime: &r%time%"
     weather: "&eWeather: &r%weather%"
     players: "&ePlayers: &r%count%"
 
+  # Anvil commands
   anvil:
     opened: "&a&lOpened virtual anvil!"
     error: "&c&lFailed to open anvil!"
 
+  # Ping commands
   ping:
     console_error: "&cOnly players can check their own ping!"
     self: "&7Your ping: &r%ping%"
     other: "&7%player%'s ping: &r%ping%"
 
+  # Clear inventory commands
   clearinventory:
     console_usage: "&cConsole usage: /clearinventory <player>"
     self_cleared: "&aYour inventory has been cleared!"
@@ -255,18 +276,21 @@ messages:
     cleared_by_staff: "&cYour inventory was cleared by staff member &e%staff%"
     no_items: "&cTarget inventory is already empty!"
 
+  # Ender chest commands
   enderchest:
     console_usage: "&cConsole usage: /enderchest <player>"
     opened_other: "&aOpened ender chest of &e%player%"
     opened_by: "&cYour ender chest was opened by &e%player%"
     console_success: "&aAccessed ender chest of &e%player% (console view not supported)"
 
+  # Reload commands
   reload:
     success: "&aPlugin configuration reloaded successfully!"
     success_console: "&aPlugin configuration reloaded from console"
     failed: "&cFailed to reload config! Check console for errors"
     failed_console: "&cConfig reload failed! Check logs for details"
 
+  # Teleport request commands
   tpa:
     console_error: "&cOnly players can use teleport requests!"
     usage: "&cUsage: /tpa <player> or /tpa <accept|deny>"
@@ -282,6 +306,8 @@ messages:
     self_request: "&cYou cannot send a teleport request to yourself!"
     no_pending: "&cYou have no pending teleport requests!"
     requester_offline: "&cThe player who requested teleport is no longer online"
+
+  # Private message commands
   msg:
     player_only_command: "Only players can execute this command."
     msg.usage: "Usage: /msg <player> <message>"
@@ -289,6 +315,7 @@ messages:
     msg.sent: "Message sent to %target%: %message%"
     msg.received: "Message from %sender%: %message%"
 
+  # Enchantment commands
   enchant:
     usage: "&cUsage: /enchant <enchantment> <level>"
     invalid_enchant: "&cInvalid enchantment! Use /enchant list to see available options"
@@ -298,22 +325,27 @@ messages:
     list_header: "&aAvailable Enchantments:"
     list_item: "&7- &e%enchant% &7(%key%)"
 
+  # Heal commands
   heal:
     success: "&aYou have been healed!"
     other_success: "&aHealed &e%player%"
     healed_by: "&aYou were healed by &e%player%"
-  nametag:
-   visible_self: "&aYour nametag is now visible!"
-   hidden_self: "&7Your nametag is now hidden!"
-   visible_other: "&a%player%'s nametag is now visible!"
-  hidden_other: "&7%player%'s nametag is now hidden!"
-  visible_by: "&aYour nametag was made visible by %player%"
-  hidden_by: "&7Your nametag was hidden by %player%"
 
+  # Nametag commands
+  nametag:
+    visible_self: "&aYour nametag is now visible!"
+    hidden_self: "&7Your nametag is now hidden!"
+    visible_other: "&a%player%'s nametag is now visible!"
+    hidden_other: "&7%player%'s nametag is now hidden!"
+    visible_by: "&aYour nametag was made visible by %player%"
+    hidden_by: "&7Your nametag was hidden by %player%"
+
+  # Smithing commands
   smithing:
     opened: "&a&lOpened virtual smithing table!"
     error: "&c&lFailed to open smithing table!"
 
+  # Pay commands
   pay:
     usage: "&cUsage: /pay <player> <amount>"
     player_not_found: "&cPlayer %player% not found!"
@@ -324,6 +356,7 @@ messages:
     self_pay: "&cYou cannot send money to yourself!"
     minimum_amount: "&cThe minimum amount you can send is $1"
 
+  # Balance commands
   balance:
     self: "&aYour balance: &2$%amount%"
     other: "&a%player%'s balance: &2$%amount%"
