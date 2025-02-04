@@ -267,11 +267,11 @@ public class ModerationCommands extends BaseCommand {
                 .replace("%reason%", reason);
 
         if (isIP) {
-            if (BanLookup.isIpBanned(targetIdentifier)) {
+            if (BanLookup.isBanned(targetIdentifier)) {
                 sendMessage(sender, "messages.moderation.ban.already_banned");
                 return true;
             }
-            BanLookup.banIp(targetIdentifier, formattedReason, sender.getName());
+            BanLookup.banPlayer(targetIdentifier, formattedReason, sender.getName());
             broadcastMessage("messages.moderation.ban.broadcast",
                     "%player%", sender.getName(),
                     "%target%", targetIdentifier,
