@@ -1,19 +1,5 @@
 package com.example.eynplugin;
 
-import com.example.eynplugin.api.LuckPermsHandler;
-import com.example.eynplugin.commands.*;
-import com.example.eynplugin.listeners.FreezeListener;
-import com.example.eynplugin.storage.HomeManager;
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.LuckPermsProvider;
-import net.milkbowl.vault.economy.Economy;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,8 +7,50 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
+
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import com.example.eynplugin.api.LuckPermsHandler;
+import com.example.eynplugin.commands.AnvilCommand;
+import com.example.eynplugin.commands.BackCommand;
+import com.example.eynplugin.commands.BalanceCommand;
+import com.example.eynplugin.commands.ClearChatCommand;
+import com.example.eynplugin.commands.ClearInventoryCommand;
+import com.example.eynplugin.commands.DiscordCommand;
+import com.example.eynplugin.commands.EnchantCommand;
+import com.example.eynplugin.commands.EnderChestCommand;
+import com.example.eynplugin.commands.FlyCommand;
+import com.example.eynplugin.commands.GamemodeCommand;
+import com.example.eynplugin.commands.GodCommand;
+import com.example.eynplugin.commands.HealCommand;
+import com.example.eynplugin.commands.ModerationCommands;
+import com.example.eynplugin.commands.MsgCommand;
+import com.example.eynplugin.commands.NameTagCommand;
+import com.example.eynplugin.commands.NickCommand;
+import com.example.eynplugin.commands.OnlinePlayersCommand;
+import com.example.eynplugin.commands.PayCommand;
+import com.example.eynplugin.commands.PingCommand;
+import com.example.eynplugin.commands.PlayerInfoCommand;
+import com.example.eynplugin.commands.PlaytimeCommand;
+import com.example.eynplugin.commands.ReloadCommand;
+import com.example.eynplugin.commands.SmithingTableCommand;
+import com.example.eynplugin.commands.TpaCommand;
+import com.example.eynplugin.commands.VanishCommand;
+import com.example.eynplugin.commands.WarpCommand;
+import com.example.eynplugin.commands.WorldInfoCommand;
+import com.example.eynplugin.commands.XPCommand;
+import com.example.eynplugin.listeners.FreezeListener;
+import com.example.eynplugin.storage.HomeManager;
+
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.milkbowl.vault.economy.Economy;
 
 /**
  * Main plugin class for EYN Plugin.
@@ -57,7 +85,7 @@ public class EYNPlugin extends JavaPlugin {
 
             getLogger().info("EYN Plugin has been enabled successfully!");
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Failed to enable EYN Plugin: " + e.getMessage(), e);
+            getLogger().log(Level.SEVERE, "Failed to enable EYN Plugin: {0}", e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
         }
     }
@@ -96,7 +124,7 @@ public class EYNPlugin extends JavaPlugin {
             getLogger().info("Successfully connected to LuckPerms API.");
             return true;
         } catch (IllegalStateException e) {
-            getLogger().severe("LuckPerms is required but not installed! Error: " + e.getMessage());
+            getLogger().log(Level.SEVERE, "LuckPerms is required but not installed! Error: {0}", e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
             return false;
         }
@@ -116,7 +144,7 @@ public class EYNPlugin extends JavaPlugin {
             return;
         }
         economy = rsp.getProvider();
-        getLogger().info("Economy system connected successfully: " + economy.getName());
+        getLogger().log(Level.INFO, "Economy system connected successfully: {0}", economy.getName());
     }
 
     /**
@@ -130,7 +158,7 @@ public class EYNPlugin extends JavaPlugin {
             try {
                 saveResource(MESSAGES_FILE, false);
             } catch (Exception e) {
-                getLogger().severe("Failed to create messages.yml: " + e.getMessage());
+                getLogger().log(Level.SEVERE, "Failed to create messages.yml: {0}", e.getMessage());
                 return false;
             }
         }
@@ -149,7 +177,7 @@ public class EYNPlugin extends JavaPlugin {
             }
             return true;
         } catch (IOException e) {
-            getLogger().severe("Failed to load messages.yml: " + e.getMessage());
+            getLogger().log(Level.SEVERE, "Failed to load messages.yml: {0}", e.getMessage());
             return false;
         }
     }
@@ -170,7 +198,7 @@ public class EYNPlugin extends JavaPlugin {
         boolean hasErrors = false;
         for (final String key : requiredKeys) {
             if (!messagesConfig.contains(key)) {
-                getLogger().warning("Missing required message key in messages.yml: " + key);
+                getLogger().log(Level.WARNING, "Missing required message key in messages.yml: {0}", key);
                 hasErrors = true;
             }
         }
@@ -184,8 +212,8 @@ public class EYNPlugin extends JavaPlugin {
      */
     private void initializeManagers() {
         luckPermsHandler = new LuckPermsHandler(this, luckPerms);
-        // Initialize HomeManager with the data folder and plugin logger.
-        homeManager = new HomeManager(new File(getDataFolder(), HOMES_DIRECTORY), getLogger());
+        // Initialize HomeManager with the data folder. Logger is now static in HomeManager.
+        homeManager = new HomeManager(new File(getDataFolder(), HOMES_DIRECTORY));
     }
 
     /**
@@ -228,7 +256,7 @@ public class EYNPlugin extends JavaPlugin {
      * Registers warp commands and their tab completers.
      */
     private void registerWarpCommands() {
-        final WarpCommand warpCommand = new WarpCommand(luckPermsHandler, messagesConfig, getDataFolder(), this);
+        final WarpCommand warpCommand = new WarpCommand(this, luckPermsHandler, messagesConfig);
         final List<String> warpCmds = Arrays.asList("warp", "setwarp", "delwarp", "warplist", "renamewarp");
         for (final String cmd : warpCmds) {
             registerCommand(cmd, warpCommand);
@@ -307,13 +335,10 @@ public class EYNPlugin extends JavaPlugin {
      * @param executor the command executor.
      */
     private void registerCommand(final String name, final CommandExecutor executor) {
-        Objects.requireNonNull(name, "Command name cannot be null");
-        Objects.requireNonNull(executor, "Command executor cannot be null");
-
         if (getCommand(name) != null) {
             getCommand(name).setExecutor(executor);
         } else {
-            getLogger().warning("Failed to register command: /" + name + " (not defined in plugin.yml)");
+            getLogger().log(Level.WARNING, "Failed to register command: /{0} (not defined in plugin.yml)", name);
         }
     }
 
@@ -324,13 +349,10 @@ public class EYNPlugin extends JavaPlugin {
      * @param completer the tab completer.
      */
     private void registerTabCompleter(final String name, final TabCompleter completer) {
-        Objects.requireNonNull(name, "Command name cannot be null");
-        Objects.requireNonNull(completer, "Tab completer cannot be null");
-
         if (getCommand(name) != null) {
             getCommand(name).setTabCompleter(completer);
         } else {
-            getLogger().warning("Failed to register tab completer for: /" + name);
+            getLogger().log(Level.WARNING, "Failed to register tab completer for: /{0}", name);
         }
     }
 

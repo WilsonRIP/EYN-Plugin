@@ -1,10 +1,10 @@
 package com.example.eynplugin;
 
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 /**
  * Utility class providing common functionality for the EYN Plugin.

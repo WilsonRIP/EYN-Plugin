@@ -1,7 +1,5 @@
 package com.example.eynplugin.commands;
 
-import com.example.eynplugin.api.LuckPermsHandler;
-import com.example.eynplugin.Utils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -9,6 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import com.example.eynplugin.Utils;
+import com.example.eynplugin.api.LuckPermsHandler;
 
 /**
  * Command to adjust the durability (damage value) of the item in the player's main hand.
@@ -33,13 +34,12 @@ public class DurabilityCommand extends BaseCommand {
      */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // Ensure only players can run this command.
-        if (!(sender instanceof Player)) {
+        // Use pattern matching for instanceof to avoid extra cast.
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(Utils.colorize(getMessage("player_only_command")));
             return true;
         }
-
-        final Player player = (Player) sender;
+        // Now use 'player' directly.
         if (!Utils.checkPermission(player, "eyn.durability")) {
             player.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
             return true;
@@ -65,8 +65,8 @@ public class DurabilityCommand extends BaseCommand {
             }
 
             final ItemMeta meta = item.getItemMeta();
-            if (meta instanceof Damageable) {
-                ((Damageable) meta).setDamage(damageValue);
+            if (meta instanceof Damageable damageable) {
+                damageable.setDamage(damageValue);
                 item.setItemMeta(meta);
                 player.sendMessage(Utils.colorize(
                         getMessage("durability.changed").replace("%durability%", String.valueOf(damageValue))

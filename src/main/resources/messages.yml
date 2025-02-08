@@ -3,8 +3,8 @@
 messages:
   welcome: "&a&lWelcome to the server!"
   goodbye: "&c&lGoodbye! &rSee you next time!"
-  no_permission: "&c&lYou do not have permission to use this command!"
-  player_only_command: "&e&lThis command can only be used by players!"
+  no_permission: "&cYou do not have permission to do that."
+  player_only_command: "&cThis command can only be used by players."
 
   error:
     generic: "&c&lAn error occurred!"
@@ -201,13 +201,15 @@ messages:
 
     nick:
       console_error: "&cOnly players can use nickname commands!"
-      usage: "&cUsage: /nick <nickname> [player]"
-      success: "&a&lNickname changed to &r%nickname%"
-      success_other: "&a&lChanged %player%'s nickname to &r%nickname%"
-      reset: "&a&lNickname reset to default"
-      reset_other: "&a&lReset %player%'s nickname"
-      too_long: "&c&lNickname is too long! Maximum length is 16 characters."
-      invalid_chars: "&c&lNickname contains invalid characters!"
+      usage: "&cUsage: /nick <nickname|reset> or /nick <player> <nickname>"
+      reset: "&aYour nickname has been reset!"
+      changed_self: "&aNickname changed to &e%nickname%"
+      changed_other: "&aChanged &e%player%'s nickname to &e%nickname%"
+      invalid_length: "&cNickname must be between 3-16 characters!"
+      invalid_characters: "&cNickname contains invalid characters!"
+      color_disabled: "&cYou don't have permission to use colored nicknames!"
+      same_as_name: "&cNickname cannot be your real name!"
+      admin_bypass: "&7[Admin] Bypassed nickname restrictions for &e%player%"
 
     burn:
       usage: "&cUsage: /burn <player> [duration]"
@@ -333,12 +335,12 @@ messages:
 
   # Nametag commands
   nametag:
-    visible_self: "&aYour nametag is now visible!"
-    hidden_self: "&7Your nametag is now hidden!"
-    visible_other: "&a%player%'s nametag is now visible!"
-    hidden_other: "&7%player%'s nametag is now hidden!"
-    visible_by: "&aYour nametag was made visible by %player%"
-    hidden_by: "&7Your nametag was hidden by %player%"
+    hidden_self: "&7Your nametag is now hidden."
+    visible_self: "&aYour nametag is now visible."
+    hidden_other: "&7Hidden %player%'s nametag."
+    visible_other: "&aShown %player%'s nametag."
+    hidden_by: "&7Your nametag was hidden by %player%."
+    visible_by: "&aYour nametag was shown by %player%."
 
   # Smithing commands
   smithing:

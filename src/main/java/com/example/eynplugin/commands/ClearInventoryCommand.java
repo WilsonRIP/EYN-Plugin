@@ -1,17 +1,20 @@
 package com.example.eynplugin.commands;
 
-import com.example.eynplugin.api.LuckPermsHandler;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import java.util.List;
-import java.util.Collections;
-import com.example.eynplugin.Utils;
-import java.util.Arrays;
 import org.bukkit.inventory.PlayerInventory;
+
+import com.example.eynplugin.Utils;
+import com.example.eynplugin.api.LuckPermsHandler;
 
 public class ClearInventoryCommand extends BaseCommand {
 
@@ -20,7 +23,13 @@ public class ClearInventoryCommand extends BaseCommand {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+        if (!(sender instanceof Player)) {
+            String message = getMessage("player_only_command");
+            sender.sendMessage(Utils.colorize(Optional.ofNullable(message).orElse("&cThis command can only be used by players")));
+            return true;
+        }
+
         // Check permission
         if (!checkPermission(sender, "eyn.clearinventory")) {
             return true;
@@ -30,10 +39,6 @@ public class ClearInventoryCommand extends BaseCommand {
 
         if (args.length == 0) {
             // Clear sender's inventory
-            if (!(sender instanceof Player)) {
-                sender.sendMessage(Utils.colorize(getMessage("messages.clearinventory.console_usage")));
-                return true;
-            }
             target = (Player) sender;
         } else {
             // Clear other player's inventory

@@ -1,16 +1,5 @@
 package com.example.eynplugin.commands;
 
-import com.example.eynplugin.api.LuckPermsHandler;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.Location;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +8,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import org.bukkit.Location;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
+
+import com.example.eynplugin.api.LuckPermsHandler;
+
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 /**
  * Command to display detailed player information.
@@ -93,7 +95,8 @@ public class PlayerInfoCommand extends BaseCommand {
 
         // Location with copy button
         final String locationStr = String.format("%s, X: %.2f, Y: %.2f, Z: %.2f", 
-                loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ());
+                loc.getWorld() != null ? loc.getWorld().getName() : "unknown",
+                loc.getX(), loc.getY(), loc.getZ());
         sendCopyableMessage(sender, "messages.playerinfo.location", locationStr, 
                 "Click to copy location", locationStr);
 

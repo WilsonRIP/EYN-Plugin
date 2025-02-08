@@ -1,6 +1,10 @@
 package com.example.eynplugin.commands;
 
-import com.example.eynplugin.api.LuckPermsHandler;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -10,9 +14,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.example.eynplugin.api.LuckPermsHandler;
 
 /**
  * BaseCommand provides common functionality for all commands in the EYN Plugin.
@@ -167,9 +169,7 @@ public abstract class BaseCommand implements CommandExecutor, TabCompleter {
      * @return a list of online player names.
      */
     protected List<String> getOnlinePlayerNames() {
-        return Bukkit.getOnlinePlayers().stream()
-                .map(Player::getName)
-                .collect(Collectors.toList());
+        return Arrays.asList("Online: " + Integer.toString(Bukkit.getOnlinePlayers().size()));
     }
 
     /**
@@ -230,5 +230,13 @@ public abstract class BaseCommand implements CommandExecutor, TabCompleter {
             message = "Message not found: " + key;
         }
         return message;
+    }
+
+    protected int parseInteger(final String input, final int defaultValue) {
+        try {
+            return Integer.parseInt(input);
+        } catch (final NumberFormatException e) {
+            return defaultValue;
+        }
     }
 }

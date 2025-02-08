@@ -13,6 +13,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.model.group.Group;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +29,7 @@ import java.util.logging.Logger;
 public class ModerationCommands extends BaseCommand {
     private final LuckPermsHandler luckPermsHandler;
     private final Plugin plugin;
-    private final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(ModerationCommands.class);
     
     private static final Pattern DURATION_PATTERN = Pattern.compile("(\\d+)([dhms])");
     private static final Pattern IP_PATTERN = Pattern.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
@@ -45,7 +46,6 @@ public class ModerationCommands extends BaseCommand {
         super(luckPermsHandler, messagesConfig);
         this.luckPermsHandler = luckPermsHandler;
         this.plugin = plugin;
-        this.logger = plugin.getLogger();
     }
 
     /**
@@ -120,42 +120,38 @@ public class ModerationCommands extends BaseCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Utils.colorize(getMessage("player_only_command")));
+            return true;
+        }
+
         // Base permission check for moderation commands.
-        if (!checkPermission(sender instanceof Player ? (Player) sender : null, "eyn.moderation")) {
-            sender.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
+        if (!checkPermission(player, "eyn.moderation")) {
+            player.sendMessage(Utils.colorize(getMessage("messages.no_permission")));
             return true;
         }
 
         final String cmdName = command.getName().toLowerCase();
-        switch (cmdName) {
-            case "mute":
-                return handleMute(sender, args);
-            case "unmute":
-                return handleUnmute(sender, args);
-            case "ban":
-                return handleBan(sender, args);
-            case "tempban":
-                return handleTempBan(sender, args);
-            case "unban":
-                return handleUnban(sender, args);
-            case "kick":
-                return handleKick(sender, args);
-            case "freeze":
-                handleFreeze(sender, args);
-                break;
-            case "tp":
-            case "tpall":
-            case "tphere":
-                handleTeleport(sender, args, cmdName);
-                break;
-            case "burn":
-                handleBurn(sender, args);
-                break;
-            default:
-                sender.sendMessage(Utils.colorize(getMessage("messages.unknown_command")));
-                break;
-        }
-        return true;
+        return switch (cmdName) {
+            case "mute" -> handleMute(sender, args);
+            case "unmute" -> handleUnmute(sender, args);
+            case "ban" -> handleBan(sender, args);
+            case "tempban" -> handleTempBan(sender, args);
+            case "unban" -> handleUnban(sender, args);
+            case "kick" -> handleKick(sender, args);
+            case "freeze" -> handleFreeze(sender, args);
+            case "tp", "tpall", "tphere" -> handleTeleport(sender, args, cmdName);
+            case "burn" -> handleBurn(sender, args);
+            case "warn" -> {
+                // Logic for warn command
+                switchWarnCommand(player, args);
+                yield true;
+            }
+            default -> {
+                player.sendMessage(Utils.colorize(getMessage("messages.unknown_command")));
+                yield true;
+            }
+        };
     }
 
     /**

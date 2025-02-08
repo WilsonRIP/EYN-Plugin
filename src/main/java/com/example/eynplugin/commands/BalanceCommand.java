@@ -1,16 +1,18 @@
 package com.example.eynplugin.commands;
 
-import com.example.eynplugin.api.LuckPermsHandler;
-import com.example.eynplugin.Utils;
-import net.milkbowl.vault.economy.Economy;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.example.eynplugin.Utils;
+import com.example.eynplugin.api.LuckPermsHandler;
+
+import net.milkbowl.vault.economy.Economy;
 
 /**
  * BalanceCommand provides functionality to check a player's balance.
@@ -37,7 +39,12 @@ public class BalanceCommand extends BaseCommand {
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         // If sender is not a player, display an error.
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Utils.colorize(getMessage("messages.player_only_command")));
+            String message = getMessage("messages.player_only_command");
+            if (message != null) {
+                sender.sendMessage(Utils.colorize(message));
+            } else {
+                sender.sendMessage(Utils.colorize("messages.player_only_command"));
+            }
             return true;
         }
         final Player player = (Player) sender;

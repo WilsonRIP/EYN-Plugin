@@ -1,12 +1,12 @@
 package com.example.eynplugin.storage;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * Handles storage and retrieval of user data in a YAML file.
@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public final class UserStorage {
     private final File file;
     private final FileConfiguration config;
-    private final Logger logger;
+    private static final Logger LOGGER = Logger.getLogger(UserStorage.class.getName());
 
     /**
      * Constructs a new UserStorage instance.
@@ -23,11 +23,11 @@ public final class UserStorage {
      */
     public UserStorage(final File dataFolder) {
         // Initialize logger; replace with your plugin's logger if available.
-        this.logger = Logger.getLogger("EYNPlugin");
+        LOGGER.info("UserStorage initialized");
 
         // Ensure the data folder exists.
         if (!dataFolder.exists() && !dataFolder.mkdirs()) {
-            logger.warning("Could not create data folder: " + dataFolder.getAbsolutePath());
+            LOGGER.warning("Could not create data folder: " + dataFolder.getAbsolutePath());
         }
 
         // Initialize the user storage file.
@@ -35,10 +35,10 @@ public final class UserStorage {
         if (!this.file.exists()) {
             try {
                 if (this.file.createNewFile()) {
-                    logger.info("Created new user storage file: " + file.getName());
+                    LOGGER.info("Created new user storage file: " + file.getName());
                 }
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Could not create user storage file", e);
+                LOGGER.severe("Could not create user storage file");
             }
         }
         this.config = YamlConfiguration.loadConfiguration(file);
@@ -47,12 +47,13 @@ public final class UserStorage {
     /**
      * Saves user data associated with the specified UUID.
      *
-     * @param uuid the unique identifier of the user.
-     * @param data the data to save.
+     * @param playerUUID the unique identifier of the user.
+     * @param data the user data to store.
      */
-    public void saveUser(final String uuid, final String data) {
-        config.set(uuid, data);
-        saveConfig();
+    public void saveUser(final String playerUUID, final String data) {
+        config.set(playerUUID, data);
+        saveConfig(playerUUID);
+        LOGGER.log(Level.INFO, "User saved: {0}", playerUUID);
     }
 
     /**
@@ -68,11 +69,11 @@ public final class UserStorage {
     /**
      * Saves the configuration changes to the storage file.
      */
-    private void saveConfig() {
+    private void saveConfig(String uuid) {
         try {
             config.save(file);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Could not save user storage file", e);
+            LOGGER.log(Level.SEVERE, "Failed to save user data for {} to {}", new Object[] {uuid, file.getAbsolutePath(), e});
         }
     }
 }

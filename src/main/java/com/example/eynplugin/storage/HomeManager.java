@@ -1,14 +1,15 @@
 package com.example.eynplugin.storage;
 
-import org.bukkit.Location;
-import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.bukkit.Location;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * Manages player home data stored in separate YAML files.
@@ -17,19 +18,17 @@ import java.util.logging.Logger;
 public class HomeManager {
     private final File homesDir;
     private final Map<UUID, YamlConfiguration> playerHomes = new HashMap<>();
-    private final Logger logger;
+    private static final Logger LOGGER = Logger.getLogger(HomeManager.class.getName());
 
     /**
      * Constructs a new HomeManager.
      *
      * @param homesDir the directory where home files will be stored.
-     * @param logger   the Logger to log errors and information.
      */
-    public HomeManager(final File homesDir, final Logger logger) {
+    public HomeManager(final File homesDir) {
         this.homesDir = homesDir;
-        this.logger = logger;
         if (!homesDir.exists() && !homesDir.mkdirs()) {
-            logger.warning("Failed to create homes directory: " + homesDir.getAbsolutePath());
+            LOGGER.warning("Failed to create homes directory: " + homesDir.getAbsolutePath());
         }
     }
 
@@ -139,7 +138,7 @@ public class HomeManager {
         try {
             config.save(playerFile);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to save home configuration for " + playerUUID, e);
+            LOGGER.log(Level.SEVERE, "Failed to save home configuration for " + playerUUID, e);
         }
     }
 

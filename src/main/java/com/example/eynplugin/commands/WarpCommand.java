@@ -1,24 +1,29 @@
 package com.example.eynplugin.commands;
 
-import com.example.eynplugin.EYNPlugin;
-import com.example.eynplugin.api.LuckPermsHandler;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.Location;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+
+import com.example.eynplugin.EYNPlugin;
+import com.example.eynplugin.api.LuckPermsHandler;
+
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 /**
  * Handles warp-related commands:
@@ -31,20 +36,24 @@ import java.util.Set;
 public class WarpCommand extends BaseCommand {
     private final File warpsFile;
     private FileConfiguration warpsConfig;
-    private final EYNPlugin plugin;
+    private final EYNPlugin plugin; // Use JavaPlugin for more general plugin access
+    private static final String WARP_PERMISSION = "eyn.warp";
+    private static final String WARP_SET_PERMISSION = "eyn.warp.set";
+    private static final String WARP_DELETE_PERMISSION = "eyn.warp.delete";
+    private static final String WARP_LIST_PERMISSION = "eyn.warp.list";
+    private static final String WARP_RENAME_PERMISSION = "eyn.warp.rename";
 
     /**
      * Constructs a new WarpCommand instance.
      *
+     * @param plugin           The main plugin instance.  Changed to JavaPlugin
      * @param luckPermsHandler the LuckPerms handler.
      * @param messagesConfig   the messages configuration.
-     * @param dataFolder       the plugin's data folder.
-     * @param plugin           the main plugin instance (for logging, scheduling, etc.).
      */
-    public WarpCommand(final LuckPermsHandler luckPermsHandler, final FileConfiguration messagesConfig, final File dataFolder, final EYNPlugin plugin) {
+    public WarpCommand(final EYNPlugin plugin, final LuckPermsHandler luckPermsHandler, final FileConfiguration messagesConfig) {
         super(luckPermsHandler, messagesConfig);
         this.plugin = plugin;
-        this.warpsFile = new File(dataFolder, "warps.yml");
+        this.warpsFile = new File(plugin.getDataFolder(), "warps.yml");
         loadWarps();
     }
 
@@ -54,11 +63,20 @@ public class WarpCommand extends BaseCommand {
     private void loadWarps() {
         if (!warpsFile.exists()) {
             try {
-                if (warpsFile.createNewFile()) {
-                    plugin.getLogger().info("Created warps.yml file.");
-                }
-            } catch (IOException e) {
-                plugin.getLogger().severe("Failed to create warps.yml: " + e.getMessage());
+                plugin.saveResource("warps.yml", false); // Use saveResource for embedded files
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().log(Level.SEVERE, "Could not save default warps.yml", e); //More descriptive
+                 try {
+                     if (!warpsFile.createNewFile()) {
+                         plugin.getLogger().severe("Failed to create warps.yml file.");
+                         return;
+                     } else {
+                         plugin.getLogger().info("Created warps.yml file.");
+                     }
+                 } catch (IOException ioException) {
+                     plugin.getLogger().log(Level.SEVERE, "Failed to create warps.yml", ioException);
+                     return; // Return early on failure.
+                 }
             }
         }
         warpsConfig = YamlConfiguration.loadConfiguration(warpsFile);
@@ -71,62 +89,85 @@ public class WarpCommand extends BaseCommand {
         try {
             warpsConfig.save(warpsFile);
         } catch (IOException e) {
-            plugin.getLogger().severe("Failed to save warps.yml: " + e.getMessage());
+            plugin.getLogger().log(Level.SEVERE, "Failed to save warps.yml", e);
         }
     }
 
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(color(getMessage("messages.player_only_command")));
             return true;
         }
-        final Player player = (Player) sender;
+        final String cmdName = command.getName().toLowerCase();
 
-        // Check for base permission.
-        if (!checkPermission(player, "eyn.warp")) {
+        return switch (cmdName) {
+            case "warp" -> handleWarpCommand(player, args);
+            case "setwarp" -> handleSetWarpCommand(player, args);
+            case "delwarp" -> handleDeleteWarpCommand(player, args);
+            case "warplist" -> handleWarpListCommand(player);
+            case "renamewarp" -> handleRenameWarpCommand(player, args);
+            default -> {
+                player.sendMessage(color(getMessage("messages.error.generic")));
+                yield true;
+            }
+        };
+    }
+
+    private boolean handleWarpCommand(Player player, String[] args) {
+        if (!checkPermission(player, WARP_PERMISSION)) {
             player.sendMessage(color(getMessage("messages.no_permission")));
             return true;
         }
-
-        final String cmdName = command.getName().toLowerCase();
-        switch (cmdName) {
-            case "warp":
-                if (args.length < 1) {
-                    player.sendMessage(color(getMessage("messages.warp.usage")));
-                    return true;
-                }
-                teleportToWarp(player, args[0]);
-                break;
-            case "setwarp":
-                if (args.length < 1) {
-                    player.sendMessage(color(getMessage("messages.warp.set_usage")));
-                    return true;
-                }
-                setWarp(player, args[0]);
-                break;
-            case "delwarp":
-                if (args.length < 1) {
-                    player.sendMessage(color(getMessage("messages.warp.del_usage")));
-                    return true;
-                }
-                deleteWarp(player, args[0]);
-                break;
-            case "warplist":
-                listWarps(player);
-                break;
-            case "renamewarp":
-                if (args.length < 2) {
-                    player.sendMessage(color(getMessage("messages.warp.rename_usage")));
-                    return true;
-                }
-                renameWarp(player, args[0], args[1]);
-                break;
-            default:
-                player.sendMessage(color(getMessage("messages.error.generic")));
-                break;
+        if (args.length < 1) {
+            player.sendMessage(color(getMessage("messages.warp.usage")));
+            return true;
         }
-        return true;
+        return teleportToWarp(player, args[0]);
+    }
+
+    private boolean handleSetWarpCommand(Player player, String[] args) {
+        if (!checkPermission(player, WARP_SET_PERMISSION)) {
+            player.sendMessage(color(getMessage("messages.no_permission")));
+            return true;
+        }
+        if (args.length < 1) {
+            player.sendMessage(color(getMessage("messages.warp.set_usage")));
+            return true;
+        }
+        return setWarp(player, args[0]);
+    }
+
+    private boolean handleDeleteWarpCommand(Player player, String[] args) {
+        if (!checkPermission(player, WARP_DELETE_PERMISSION)) {
+            player.sendMessage(color(getMessage("messages.no_permission")));
+            return true;
+        }
+        if (args.length < 1) {
+            player.sendMessage(color(getMessage("messages.warp.del_usage")));
+            return true;
+        }
+        return deleteWarp(player, args[0]);
+    }
+
+    private boolean handleWarpListCommand(Player player) {
+        if (!checkPermission(player, WARP_LIST_PERMISSION)) {
+            player.sendMessage(color(getMessage("messages.no_permission")));
+            return true;
+        }
+        return listWarps(player);
+    }
+
+    private boolean handleRenameWarpCommand(Player player, String[] args) {
+        if (!checkPermission(player, WARP_RENAME_PERMISSION)) {
+            player.sendMessage(color(getMessage("messages.no_permission")));
+            return true;
+        }
+        if (args.length < 2) {
+            player.sendMessage(color(getMessage("messages.warp.rename_usage")));
+            return true;
+        }
+        return renameWarp(player, args[0], args[1]);
     }
 
     /**
@@ -135,18 +176,20 @@ public class WarpCommand extends BaseCommand {
      * @param player   the player to teleport.
      * @param warpName the name of the warp.
      */
-    private void teleportToWarp(final Player player, final String warpName) {
+    private boolean teleportToWarp(final Player player, final String warpName) {
         if (!warpsConfig.contains(warpName)) {
             player.sendMessage(color(getMessage("messages.warp.not_found").replace("%warp%", warpName)));
-            return;
+            return true;
         }
-        final Location loc = (Location) warpsConfig.get(warpName);
+        final Location loc = warpsConfig.getObject(warpName, Location.class); // Use getObject for cleaner type handling
         if (loc == null) {
-            player.sendMessage(color(getMessage("messages.error.generic")));
-            return;
+            player.sendMessage(color(getMessage("messages.error.generic"))); //Could be more specific, like warp data corrupt
+            plugin.getLogger().warning("Warp location for '" + warpName + "' is null.");
+            return true;
         }
         player.teleport(loc);
         player.sendMessage(color(getMessage("messages.warp.teleported").replace("%warp%", warpName)));
+        return true;
     }
 
     /**
@@ -155,14 +198,15 @@ public class WarpCommand extends BaseCommand {
      * @param player   the player setting the warp.
      * @param warpName the desired warp name.
      */
-    private void setWarp(final Player player, final String warpName) {
+    private boolean setWarp(final Player player, final String warpName) {
         if (warpsConfig.contains(warpName)) {
             player.sendMessage(color(getMessage("messages.warp.already_exists").replace("%warp%", warpName)));
-            return;
+            return true;
         }
         warpsConfig.set(warpName, player.getLocation());
         saveWarps();
         player.sendMessage(color(getMessage("messages.warp.set").replace("%warp%", warpName)));
+        return true;
     }
 
     /**
@@ -171,14 +215,15 @@ public class WarpCommand extends BaseCommand {
      * @param player   the player deleting the warp.
      * @param warpName the name of the warp to delete.
      */
-    private void deleteWarp(final Player player, final String warpName) {
+    private boolean deleteWarp(final Player player, final String warpName) {
         if (!warpsConfig.contains(warpName)) {
             player.sendMessage(color(getMessage("messages.warp.not_found").replace("%warp%", warpName)));
-            return;
+            return true;
         }
         warpsConfig.set(warpName, null);
         saveWarps();
         player.sendMessage(color(getMessage("messages.warp.deleted").replace("%warp%", warpName)));
+        return true;
     }
 
     /**
@@ -186,32 +231,32 @@ public class WarpCommand extends BaseCommand {
      *
      * @param player the player to receive the list.
      */
-    private void listWarps(final Player player) {
+    private boolean listWarps(final Player player) {
         final Set<String> warps = warpsConfig.getKeys(false);
         if (warps.isEmpty()) {
             player.sendMessage(color(getMessage("messages.warp.no_warps")));
-            return;
+            return true;
         }
         player.sendMessage(color(getMessage("messages.warp.list_header")));
 
         // Build a clickable list using Bungee TextComponent.
-        final net.md_5.bungee.api.chat.TextComponent message = new net.md_5.bungee.api.chat.TextComponent();
+        ComponentBuilder builder = new ComponentBuilder();
         final List<String> sortedWarps = new ArrayList<>(warps);
         Collections.sort(sortedWarps);
-        boolean first = true;
-        for (final String warp : sortedWarps) {
-            if (!first) {
-                message.addExtra(new net.md_5.bungee.api.chat.TextComponent(", "));
+
+        for (int i = 0; i < sortedWarps.size(); i++) {
+            String warp = sortedWarps.get(i);
+            builder.append(warp)
+                   .color(net.md_5.bungee.api.ChatColor.AQUA)
+                   .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/warp " + warp))
+                   .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to teleport to " + warp)));
+
+            if (i < sortedWarps.size() - 1) {
+                builder.append(", ").color(net.md_5.bungee.api.ChatColor.GRAY); // Consistent color for separators
             }
-            first = false;
-            final net.md_5.bungee.api.chat.TextComponent warpComponent = new net.md_5.bungee.api.chat.TextComponent(warp);
-            warpComponent.setColor(net.md_5.bungee.api.ChatColor.AQUA);
-            warpComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/warp " + warp));
-            warpComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                    new Text[] { new Text("Click to teleport to " + warp) }));
-            message.addExtra(warpComponent);
         }
-        player.spigot().sendMessage(message);
+        player.spigot().sendMessage(builder.create());
+        return true;
     }
 
     /**
@@ -221,22 +266,23 @@ public class WarpCommand extends BaseCommand {
      * @param oldName the current warp name.
      * @param newName the new warp name.
      */
-    private void renameWarp(final Player player, final String oldName, final String newName) {
+    private boolean renameWarp(final Player player, final String oldName, final String newName) {
         if (!warpsConfig.contains(oldName)) {
             player.sendMessage(color(getMessage("messages.warp.not_found").replace("%warp%", oldName)));
-            return;
+            return true;
         }
         if (warpsConfig.contains(newName)) {
             player.sendMessage(color(getMessage("messages.warp.already_exists").replace("%warp%", newName)));
-            return;
+            return true;
         }
-        final Location loc = (Location) warpsConfig.get(oldName);
+        final Location loc = warpsConfig.getObject(oldName, Location.class); // Use getObject
         warpsConfig.set(newName, loc);
         warpsConfig.set(oldName, null);
         saveWarps();
         player.sendMessage(color(getMessage("messages.warp.renamed")
                 .replace("%old%", oldName)
                 .replace("%new%", newName)));
+        return true;
     }
 
     /**
@@ -247,5 +293,40 @@ public class WarpCommand extends BaseCommand {
      */
     private String color(final String message) {
         return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (!(sender instanceof Player)) {
+            return Collections.emptyList();
+        }
+        Player player = (Player) sender;
+        String cmdName = command.getName().toLowerCase();
+
+        switch (cmdName) {
+            case "warp":
+                if (args.length == 1) {
+                    return filterWarps(player, args[0]);
+                }
+                break;
+            case "delwarp":
+            case "renamewarp": //First argument
+                if (args.length == 1) {
+                    return filterWarps(player, args[0]);
+                }
+                break;
+        }
+        return Collections.emptyList(); // Return an empty list instead of null.
+    }
+
+    private List<String> filterWarps(Player player, String start) {
+        Set<String> warps = warpsConfig.getKeys(false);
+        if (warps.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        return warps.stream()
+                .filter(warp -> warp.toLowerCase().startsWith(start.toLowerCase()))
+                .collect(Collectors.toList());
     }
 }
