@@ -155,6 +155,7 @@ messages:
       unfreeze_broadcast: "&a%player% has unfrozen %target%"
       unfreeze_target: "&a&lYou have been unfrozen! You may move now."
       not_frozen: "&cThis player is not frozen!"
+      movement_blocked: "&cYou are frozen and cannot move."
 
     mute:
       usage: "&cUsage: /mute <player> <reason>"
@@ -402,6 +403,20 @@ messages:
 
   getpos:
     format: "&aYour current position is: &eWorld: %world%, X: %x%, Y: %y%, Z: %z%, Yaw: %yaw%, Pitch: %pitch%"
+
+  manageplayer:
+    usage: "&cUsage: /manageplayer <player>"
+    teleported: "&aTeleported to %player%."
+    kicked: "&aKicked %player% from the server."
+    kicked_reason: "&cYou were kicked by %player%."
+    banned: "&aBanned %player% from the server."
+    banned_reason: "&cYou were banned by %player%."
+    muted: "&aMuted %player%."
+    unmuted: "&aUnmuted %player%."
+    mute_not_implemented: "&cMute functionality not yet implemented."
+
+  join: "&a%player% has joined the server!"
+  quit: "&c%player% has left the server."
 
 rules:
   header: "&e&lServer Rules:"

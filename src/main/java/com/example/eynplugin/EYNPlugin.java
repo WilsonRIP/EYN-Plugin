@@ -53,7 +53,13 @@ import com.example.eynplugin.commands.SpeedCommand;
 import com.example.eynplugin.commands.StonecutterCommand;
 import com.example.eynplugin.commands.EffectCommand;
 import com.example.eynplugin.commands.GetPosCommand;
+import com.example.eynplugin.commands.ManagePlayerCommand;
+import com.example.eynplugin.listeners.BlockBreakListener;
 import com.example.eynplugin.listeners.FreezeListener;
+import com.example.eynplugin.listeners.JoinListener;
+import com.example.eynplugin.listeners.QuitListener;
+import com.example.eynplugin.listeners.ChatListener;
+import com.example.eynplugin.listeners.MoveListener;
 import com.example.eynplugin.storage.HomeManager;
 
 import net.luckperms.api.LuckPerms;
@@ -75,6 +81,7 @@ public class EYNPlugin extends JavaPlugin {
     private FileConfiguration messagesConfig;
     private VanishCommand vanishCommand;
     private HomeManager homeManager;
+    private ModerationCommands moderation;
 
     @Override
     public void onEnable() {
@@ -222,13 +229,19 @@ public class EYNPlugin extends JavaPlugin {
         luckPermsHandler = new LuckPermsHandler(this, luckPerms);
         // Initialize HomeManager with the data folder and plugin logger.
         homeManager = new HomeManager(new File(getDataFolder(), HOMES_DIRECTORY));
+        moderation = new ModerationCommands(luckPermsHandler, messagesConfig, this);
     }
 
     /**
      * Registers event listeners.
      */
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new FreezeListener(this), this);
+        new BlockBreakListener(this);
+        new FreezeListener(this);
+        new JoinListener(this, messagesConfig);
+        new QuitListener(this, messagesConfig);
+        new ChatListener(this, messagesConfig);
+        new MoveListener(this, messagesConfig);
     }
 
     /**
@@ -328,6 +341,7 @@ public class EYNPlugin extends JavaPlugin {
         registerCommand("speed", new SpeedCommand(messagesConfig));
         registerCommand("stonecutter", new StonecutterCommand(messagesConfig));
         registerCommand("effect", new EffectCommand(messagesConfig));
+        registerCommand("manageplayer", new ManagePlayerCommand(messagesConfig, this, luckPermsHandler, moderation));
 
         // Register gamemode commands as a group.
         final GamemodeCommand gamemodeCommand = new GamemodeCommand(luckPermsHandler, messagesConfig);

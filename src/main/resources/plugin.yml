@@ -277,6 +277,11 @@ commands:
     usage: "/<command> <player> <effect> <duration> <amplifier> or /effect <effect> <duration> <amplifier>"
     permission: "eyn.effect"
 
+  manageplayer:
+    description: "Opens a GUI to manage a player"
+    usage: "/<command> <player>"
+    permission: "eyn.manageplayer"
+
 permissions:
   eyn.home:
     description: "Allows using home commands"
@@ -337,4 +342,19 @@ permissions:
     default: true
   eyn.effect.others:
     description: "Allows using the effect command on others"
+    default: op
+  eyn.manageplayer:
+    description: "Allows using the manageplayer command"
+    default: op
+  eyn.manageplayer.teleport:
+    description: "Allows teleporting to the managed player"
+    default: op
+  eyn.manageplayer.kick:
+    description: "Allows kicking the managed player"
+    default: op
+  eyn.manageplayer.ban:
+    description: "Allows banning the managed player"
+    default: op
+  eyn.manageplayer.mute:
+    description: "Allows muting the managed player"
     default: op
