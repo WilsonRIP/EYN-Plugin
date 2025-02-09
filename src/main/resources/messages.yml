@@ -399,3 +399,11 @@ messages:
     applied_self: "&aApplied %effect% (Duration: %duration%, Amplifier: %amplifier%) to yourself."
     applied_other: "&aApplied %effect% (Duration: %duration%, Amplifier: %amplifier%) to %player%."
     received: "&aYou received %effect% (Duration: %duration%, Amplifier: %amplifier%) from %sender%."
+
+  getpos:
+    format: "&aYour current position is: &eWorld: %world%, X: %x%, Y: %y%, Z: %z%, Yaw: %yaw%, Pitch: %pitch%"
+
+rules:
+  header: "&e&lServer Rules:"
+  footer: "&e&lPlease follow these rules to ensure a fun and fair environment!"
+  error: "&cCould not load rules. Please contact an administrator."

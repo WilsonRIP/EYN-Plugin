@@ -10,12 +10,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.PluginManager;
 
 import com.example.eynplugin.api.LuckPermsHandler;
 import com.example.eynplugin.commands.AnvilCommand;
@@ -40,6 +42,7 @@ import com.example.eynplugin.commands.PingCommand;
 import com.example.eynplugin.commands.PlayerInfoCommand;
 import com.example.eynplugin.commands.PlaytimeCommand;
 import com.example.eynplugin.commands.ReloadCommand;
+import com.example.eynplugin.commands.RulesCommand;
 import com.example.eynplugin.commands.SmithingTableCommand;
 import com.example.eynplugin.commands.TpaCommand;
 import com.example.eynplugin.commands.VanishCommand;
@@ -49,6 +52,7 @@ import com.example.eynplugin.commands.XPCommand;
 import com.example.eynplugin.commands.SpeedCommand;
 import com.example.eynplugin.commands.StonecutterCommand;
 import com.example.eynplugin.commands.EffectCommand;
+import com.example.eynplugin.commands.GetPosCommand;
 import com.example.eynplugin.listeners.FreezeListener;
 import com.example.eynplugin.storage.HomeManager;
 
@@ -254,6 +258,8 @@ public class EYNPlugin extends JavaPlugin {
         // Additional commands.
         registerCommand("heal", new HealCommand(luckPermsHandler, messagesConfig));
         registerCommand("nametag", new NameTagCommand(luckPermsHandler, messagesConfig, this));
+        registerCommand("rules", new RulesCommand(messagesConfig, getDataFolder().getAbsolutePath()));
+        registerCommand("getpos", new GetPosCommand(messagesConfig));
     }
 
     /**

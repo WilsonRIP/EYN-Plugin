@@ -41,7 +41,94 @@ commands:
     description: "Set your speed"
     usage: "/<command> <speed>"
     permission: "eyn.speed"
-
+  ping:
+    description: "Check your ping"
+    usage: "/<command>"
+  playtime:
+    description: "Check your playtime"
+    usage: "/<command> [player]"
+  playerinfo:
+    description: "View player information"
+    usage: "/<command> [player]"
+  nick:
+    description: "Set or reset your nickname"
+    usage: "/<command> [nickname]"
+  vanish:
+    description: "Toggle vanish mode"
+    usage: "/<command>"
+  enderchest:
+    description: "Open a virtual ender chest"
+    usage: "/<command> [player]"
+  anvil:
+    description: "Open a virtual anvil"
+    usage: "/<command>"
+  smithingtable:
+    description: "Open a virtual smithing table"
+    usage: "/<command>"
+  stonecutter:
+    description: "Opens a virtual stonecutter"
+    usage: "/<command>"
+  clearchat:
+    description: "Clears the chat"
+    usage: "/<command>"
+  clearinventory:
+    description: "Clears your inventory"
+    usage: "/<command>"
+  discord:
+    description: "Displays the discord link"
+    usage: "/<command>"
+  reloadplugin:
+    description: "Reloads the plugin"
+    usage: "/<command>"
+  msg:
+    description: "Send a private message to a player"
+    usage: "/<command> <player> <message>"
+  tpa:
+    description: "Request to teleport to a player"
+    usage: "/<command> <player>"
+  warp:
+    description: "Teleport to a warp point"
+    usage: "/<command> <warp>"
+  worldinfo:
+    description: "Displays information about the current world"
+    usage: "/<command>"
+  heal:
+    description: "Heals a player"
+    usage: "/<command> [player]"
+  xp:
+    description: "Give, take, or set player's experience points"
+    usage: "/<command> <give|take|set> <amount> [player]"
+  effect:
+    description: "Apply potion effects to yourself or others"
+    usage: "/<command> <player> <effect> <duration> <amplifier> or /effect <effect> <duration> <amplifier>"
+  enchant:
+    description: "Enchant the item in your hand"
+    usage: "/<command> <enchantment> <level>"
+  pay:
+    description: "Send money to another player"
+    usage: "/<command> <player> <amount>"
+    permission: "eyn.pay"
+    permission-message: "&cYou don't have permission to use this command!"
+    aliases: ["sendmoney"]
+  balance:
+    description: "Check your balance or another player's balance"
+    usage: "/<command> [player]"
+    permission: "eyn.balance"
+    permission-message: "&cYou don't have permission to use this command!"
+    aliases: ["bal", "money"]
+  nametag:
+    description: "Set a player's nametag"
+    usage: "/<command> <player> <prefix> [suffix]"
+  moderation:
+    description: "Moderation commands"
+    usage: "/<command> <ban|kick|mute|warn> <player> [reason]"
+  rules:
+    description: "Display the server rules"
+    usage: "/<command>"
+    permission: "eyn.rules"
+  getpos:
+    description: "Get your current position"
+    usage: "/<command>"
 
   # Weather and item commands
   weather:
@@ -52,9 +139,6 @@ commands:
     usage: "/<command> <value>"
 
   # Warp commands
-  warp:
-    description: "Teleport to a warp location"
-    usage: "/<command> <name>"
   setwarp:
     description: "Set a new warp location"
     usage: "/<command> <name>"
@@ -69,10 +153,6 @@ commands:
     usage: "/<command> <oldname> <newname>"
 
   # Communication and social commands
-  discord:
-    description: "Get the Discord server invite link"
-    usage: "/<command>"
-    aliases: ["dc"]
   kill:
     description: "Kill yourself or another player"
     usage: "/<command> [player]"
@@ -81,29 +161,14 @@ commands:
     usage: "/<command>"
 
   # Vanish and player information commands
-  vanish:
-    description: "Toggle vanish mode"
-    usage: "/<command> [player]"
-    aliases: ["v"]
   vanishlist:
     description: "List all vanished players"
     usage: "/<command>"
     aliases: ["vlist"]
-  playtime:
-    description: "Check your or another player's playtime"
-    usage: "/<command> [player]"
-  playerinfo:
-    description: "View detailed information about a player"
-    usage: "/<command> [player]"
-    aliases: ["pinfo", "pi"]
   online:
     description: "View list of online players"
     usage: "/<command>"
     aliases: ["list", "who", "players"]
-  clearchat:
-    description: "Clear the chat"
-    usage: "/<command>"
-    aliases: ["cc"]
 
   # Moderation commands
   mute:
@@ -124,10 +189,6 @@ commands:
   kick:
     description: "Kick a player from the server"
     usage: "/<command> <player> <reason>"
-  ping:
-    description: "Check your ping or another player's ping"
-    usage: "/<command> [player]"
-    aliases: ["latency"]
   nick:
     description: "Change your nickname or another player's nickname"
     usage: "/<command> [player] <nickname|reset>"
@@ -138,20 +199,8 @@ commands:
     description: "Manage your homes"
     usage: "/home <name> [set|del|rename]"
     aliases: ["sethome", "delhome", "renamehome"]
-  xp:
-    description: "Manage player experience points"
-    usage: "/xp <give|take|set> <amount> [player]"
-    aliases: ["exp", "experience"]
 
   # World and miscellaneous commands
-  worldinfo:
-    description: "Display information about the current world"
-    usage: "/<command>"
-    permission: "eyn.worldinfo"
-  anvil:
-    description: "Opens a virtual anvil"
-    usage: "/<command>"
-    permission: "eyn.anvil"
   freeze:
     description: "Freeze or unfreeze a player"
     usage: "/<command> <player>"
@@ -173,16 +222,6 @@ commands:
     description: "Set a player on fire"
     usage: "/<command> <player> [duration]"
     permission: "eyn.burn"
-  clearinventory:
-    description: "Clear a player's inventory"
-    usage: "/<command> [player]"
-    permission: "eyn.clearinventory"
-    aliases: ["ci", "clearinv"]
-  enderchest:
-    description: "Open a player's ender chest"
-    usage: "/<command> [player]"
-    permission: "eyn.enderchest"
-    aliases: ["ec", "echest"]
 
   # Reload and teleport request commands
   eynreload:
@@ -190,11 +229,6 @@ commands:
     usage: "/<command>"
     permission: "eyn.reload"
     aliases: ["pluginreload", "preload"]
-  tpa:
-    description: "Send teleport request to a player"
-    usage: "/<command> <player>"
-    permission: "eyn.tpa"
-    aliases: ["teleportrequest"]
   tpaccept:
     description: "Accept a teleport request"
     usage: "/<command>"
@@ -205,11 +239,6 @@ commands:
     permission: "eyn.tpaccept"
 
   # Enchant and heal commands
-  enchant:
-    description: "Enchants the item in hand with the specified enchantment."
-    usage: "/enchant <enchantment> <level> [player]"
-    permission: "eyn.enchant"
-    permission-message: "&cYou do not have permission to use this command."
   heal:
     description: "Heal yourself or another player"
     usage: "/<command> [player]"
