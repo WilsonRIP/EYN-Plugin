@@ -1,10 +1,6 @@
 package com.example.eynplugin.commands;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.example.eynplugin.api.LuckPermsHandler;
 import org.bukkit.Registry;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,7 +11,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.example.eynplugin.api.LuckPermsHandler;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * EnchantCommand allows players to apply enchantments to the item held in their main hand.
@@ -164,16 +163,12 @@ public class EnchantCommand extends BaseCommand {
     private void applyEnchantment(final ItemStack item, final Enchantment enchant, final int level) {
         if (item.getType().name().endsWith("ENCHANTED_BOOK")) {
             final EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
-            if (meta != null) {
-                meta.addStoredEnchant(enchant, level, true);
-                item.setItemMeta(meta);
-            }
+            meta.addStoredEnchant(enchant, level, true);
+            item.setItemMeta(meta);
         } else {
             final ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                meta.addEnchant(enchant, level, true);
-                item.setItemMeta(meta);
-            }
+            meta.addEnchant(enchant, level, true);
+            item.setItemMeta(meta);
         }
     }
 

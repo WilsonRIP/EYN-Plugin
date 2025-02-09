@@ -363,3 +363,39 @@ messages:
     self: "&aYour balance: &2$%amount%"
     other: "&a%player%'s balance: &2$%amount%"
     player_not_found: "&cPlayer %player% not found!"
+
+  # Nickname messages
+  nick:
+    console_error: "&cOnly players can use nickname commands!"
+    usage: "&cUsage: /nick <nickname|reset> or /nick <player> <nickname>"
+    reset: "&aYour nickname has been reset!"
+    changed_self: "&aNickname changed to &e%nickname%"
+    changed_other: "&aChanged &e%player%'s nickname to &e%nickname%"
+    invalid_length: "&cNickname must be between 3-16 characters!"
+    invalid_characters: "&cNickname contains invalid characters!"
+    color_disabled: "&cYou don't have permission to use colored nicknames!"
+    same_as_name: "&cNickname cannot be your real name!"
+    admin_bypass: "&7[Admin] Bypassed nickname restrictions for &e%player%"
+
+  # Speed command messages
+  speed:
+    usage: "&cUsage: /speed <0-10>"
+    invalid_speed: "&cInvalid speed! Please enter a number."
+    range: "&cSpeed must be between 0 and 10."
+    set: "&aSpeed set to &e%speed%"
+    reset: "&aSpeed reset to normal."
+
+  # Stonecutter commands
+  stonecutter:
+    opened: "&a&lOpened virtual stonecutter!"
+    error: "&c&lFailed to open stonecutter!"
+
+  # Effect commands
+  effect:
+    usage: "&cUsage: /effect <player> <effect> <duration> <amplifier> or /effect <effect> <duration> <amplifier>"
+    invalid_effect: "&cInvalid effect: %effect%"
+    invalid_duration: "&cInvalid duration. Please enter a number."
+    invalid_amplifier: "&cInvalid amplifier. Please enter a number."
+    applied_self: "&aApplied %effect% (Duration: %duration%, Amplifier: %amplifier%) to yourself."
+    applied_other: "&aApplied %effect% (Duration: %duration%, Amplifier: %amplifier%) to %player%."
+    received: "&aYou received %effect% (Duration: %duration%, Amplifier: %amplifier%) from %sender%."

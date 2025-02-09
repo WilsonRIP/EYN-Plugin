@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import org.bukkit.command.CommandExecutor;
@@ -45,6 +46,9 @@ import com.example.eynplugin.commands.VanishCommand;
 import com.example.eynplugin.commands.WarpCommand;
 import com.example.eynplugin.commands.WorldInfoCommand;
 import com.example.eynplugin.commands.XPCommand;
+import com.example.eynplugin.commands.SpeedCommand;
+import com.example.eynplugin.commands.StonecutterCommand;
+import com.example.eynplugin.commands.EffectCommand;
 import com.example.eynplugin.listeners.FreezeListener;
 import com.example.eynplugin.storage.HomeManager;
 
@@ -124,7 +128,7 @@ public class EYNPlugin extends JavaPlugin {
             getLogger().info("Successfully connected to LuckPerms API.");
             return true;
         } catch (IllegalStateException e) {
-            getLogger().log(Level.SEVERE, "LuckPerms is required but not installed! Error: {0}", e.getMessage());
+            getLogger().severe("LuckPerms is required but not installed! Error: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
             return false;
         }
@@ -177,7 +181,7 @@ public class EYNPlugin extends JavaPlugin {
             }
             return true;
         } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Failed to load messages.yml: {0}", e.getMessage());
+            getLogger().severe("Could not load messages.yml! " + e.getMessage());
             return false;
         }
     }
@@ -198,7 +202,7 @@ public class EYNPlugin extends JavaPlugin {
         boolean hasErrors = false;
         for (final String key : requiredKeys) {
             if (!messagesConfig.contains(key)) {
-                getLogger().log(Level.WARNING, "Missing required message key in messages.yml: {0}", key);
+                getLogger().warning("Missing required message key in messages.yml: " + key);
                 hasErrors = true;
             }
         }
@@ -212,7 +216,7 @@ public class EYNPlugin extends JavaPlugin {
      */
     private void initializeManagers() {
         luckPermsHandler = new LuckPermsHandler(this, luckPerms);
-        // Initialize HomeManager with the data folder. Logger is now static in HomeManager.
+        // Initialize HomeManager with the data folder and plugin logger.
         homeManager = new HomeManager(new File(getDataFolder(), HOMES_DIRECTORY));
     }
 
@@ -315,6 +319,9 @@ public class EYNPlugin extends JavaPlugin {
         registerCommand("worldinfo", new WorldInfoCommand(luckPermsHandler, messagesConfig));
         registerCommand("msg", new MsgCommand(luckPermsHandler, messagesConfig));
         registerCommand("enchant", new EnchantCommand(luckPermsHandler, messagesConfig));
+        registerCommand("speed", new SpeedCommand(messagesConfig));
+        registerCommand("stonecutter", new StonecutterCommand(messagesConfig));
+        registerCommand("effect", new EffectCommand(messagesConfig));
 
         // Register gamemode commands as a group.
         final GamemodeCommand gamemodeCommand = new GamemodeCommand(luckPermsHandler, messagesConfig);
@@ -335,10 +342,13 @@ public class EYNPlugin extends JavaPlugin {
      * @param executor the command executor.
      */
     private void registerCommand(final String name, final CommandExecutor executor) {
+        Objects.requireNonNull(name, "Command name cannot be null");
+        Objects.requireNonNull(executor, "Command executor cannot be null");
+
         if (getCommand(name) != null) {
             getCommand(name).setExecutor(executor);
         } else {
-            getLogger().log(Level.WARNING, "Failed to register command: /{0} (not defined in plugin.yml)", name);
+            getLogger().warning("Failed to register command: /" + name + " (not defined in plugin.yml)");
         }
     }
 
@@ -349,10 +359,13 @@ public class EYNPlugin extends JavaPlugin {
      * @param completer the tab completer.
      */
     private void registerTabCompleter(final String name, final TabCompleter completer) {
+        Objects.requireNonNull(name, "Command name cannot be null");
+        Objects.requireNonNull(completer, "Tab completer cannot be null");
+
         if (getCommand(name) != null) {
             getCommand(name).setTabCompleter(completer);
         } else {
-            getLogger().log(Level.WARNING, "Failed to register tab completer for: /{0}", name);
+            getLogger().warning("Failed to register tab completer for: /" + name);
         }
     }
 

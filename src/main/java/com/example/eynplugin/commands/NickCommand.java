@@ -42,12 +42,7 @@ public class NickCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // Ensure that only players can use this command.
         if (!(sender instanceof Player)) {
-            String message = formatMessage("messages.nick.console_error");
-            if (message != null) {
-                sender.sendMessage(message);
-            } else {
-                sender.sendMessage("messages.nick.console_error");
-            }
+            sender.sendMessage(formatMessage("messages.nick.console_error"));
             return true;
         }
         final Player player = (Player) sender;
@@ -90,9 +85,8 @@ public class NickCommand implements CommandExecutor {
                 return true;
             }
             setNickname(target, args[1], true);
-            String targetName = (target.getName() != null) ? target.getName() : "Unknown";
             player.sendMessage(formatMessage("messages.nick.changed_other")
-                    .replace("%player%", targetName)
+                    .replace("%player%", target.getName())
                     .replace("%nickname%", args[1]));
         }
         return true;

@@ -1,17 +1,15 @@
 package com.example.eynplugin.commands;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
+import com.example.eynplugin.api.LuckPermsHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import com.example.eynplugin.Utils;
-import com.example.eynplugin.api.LuckPermsHandler;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Command that clears the chat for all online players.
@@ -44,19 +42,6 @@ public class ClearChatCommand extends BaseCommand {
      */
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        if (args.length == 0) {
-            String message = getMessage("clearchat.success");
-            if (message != null) {
-                for (int i = 0; i < 100; i++) {
-                    Bukkit.broadcastMessage(" ");
-                }
-                Bukkit.broadcastMessage(Utils.colorize(message));
-            } else {
-                Bukkit.broadcastMessage(Utils.colorize("clearchat.success"));
-            }
-            return true;
-        }
-
         // For non-player senders (console), simply clear chat using sender's name.
         if (!(sender instanceof Player)) {
             clearChat(sender.getName());

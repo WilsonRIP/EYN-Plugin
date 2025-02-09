@@ -37,6 +37,11 @@ commands:
   gma:
     description: "Switch to adventure mode"
     usage: "/<command>"
+  speed:
+    description: "Set your speed"
+    usage: "/<command> <speed>"
+    permission: "eyn.speed"
+
 
   # Weather and item commands
   weather:
@@ -232,6 +237,17 @@ commands:
     permission-message: "&cYou don't have permission to use this command!"
     aliases: ["bal", "money"]
 
+  # New command
+  stonecutter:
+    description: "Opens a virtual stonecutter"
+    usage: "/<command>"
+    permission: "eyn.stonecutter"
+
+  effect:
+    description: "Apply potion effects to yourself or others"
+    usage: "/<command> <player> <effect> <duration> <amplifier> or /effect <effect> <duration> <amplifier>"
+    permission: "eyn.effect"
+
 permissions:
   eyn.home:
     description: "Allows using home commands"
@@ -283,4 +299,13 @@ permissions:
     default: true
   eyn.balance.others:
     description: "Allows checking other players' balances"
+    default: op
+  eyn.stonecutter:
+    description: "Allows using the stonecutter command"
+    default: true
+  eyn.effect:
+    description: "Allows using the effect command on self"
+    default: true
+  eyn.effect.others:
+    description: "Allows using the effect command on others"
     default: op

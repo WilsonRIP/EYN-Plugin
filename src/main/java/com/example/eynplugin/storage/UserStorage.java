@@ -47,13 +47,13 @@ public final class UserStorage {
     /**
      * Saves user data associated with the specified UUID.
      *
-     * @param playerUUID the unique identifier of the user.
-     * @param data the user data to store.
+     * @param uuid the unique identifier of the user.
+     * @param data the data to save.
      */
-    public void saveUser(final String playerUUID, final String data) {
-        config.set(playerUUID, data);
-        saveConfig(playerUUID);
-        LOGGER.log(Level.INFO, "User saved: {0}", playerUUID);
+    public void saveUser(final String uuid, final String data) {
+        config.set(uuid, data);
+        saveConfig();
+        LOGGER.log(Level.INFO, "User saved: {0}", uuid);
     }
 
     /**
@@ -69,11 +69,11 @@ public final class UserStorage {
     /**
      * Saves the configuration changes to the storage file.
      */
-    private void saveConfig(String uuid) {
+    private void saveConfig() {
         try {
             config.save(file);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to save user data for {} to {}", new Object[] {uuid, file.getAbsolutePath(), e});
+            LOGGER.severe("Could not save user storage file");
         }
     }
 }

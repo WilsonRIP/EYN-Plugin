@@ -65,8 +65,8 @@ public class DurabilityCommand extends BaseCommand {
             }
 
             final ItemMeta meta = item.getItemMeta();
-            if (meta instanceof Damageable damageable) {
-                damageable.setDamage(damageValue);
+            if (meta instanceof Damageable) {
+                ((Damageable) meta).setDamage(damageValue);
                 item.setItemMeta(meta);
                 player.sendMessage(Utils.colorize(
                         getMessage("durability.changed").replace("%durability%", String.valueOf(damageValue))
